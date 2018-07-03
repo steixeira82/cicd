@@ -1,0 +1,90 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="MatchingController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderShareData("momentjsLongDateTimeFormat", (string)ViewBag.momentjsLongDateTimeFormat)
+                    @Html.RenderWidget(
+                    "wMatching",
+                    "Matching",
+                    new List<IHtmlString>() {
+                        Html.RenderHTML("<h3 class='alert alert-info' ng-cloak>{{ ctl.refreshTime }}</h3>"),
+                        Html.RenderForm("matchingForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("MATCHING_DT_TRADE", "Trade Date", gridPart: 2, required: true, ng_model: "ctl.filter.MATCHING_DT_TRADE", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderSelect("MATCH", SelectType.Single, label: "Matching", gridPart: 2, required: true, options: new Dictionary<string,string>() { {"1", "Match"}, {"2", "Not Match"}} , ng_model: "ctl.filter.MATCH", ng_change: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 3, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" )
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtMatching",
+                                        new List<DataGridOptions>() {
+                                            new DataGridOptions() { Id = "GIVEUP_ACCOUNT", ColumnName = "Giveup Link", Sortable = true },
+                                            new DataGridOptions() { Id = "MATCHING_CLIENT_NAME", ColumnName = "Client Name", Sortable = true, NoWrap = true },
+                                            new DataGridOptions() { Id = "MATCHING_DT_TRADE", ColumnName = "Dt. trade", Sortable = true, Type = ColumnType.Date },
+                                            new DataGridOptions() { Id = "MATCHING_BROKER", ColumnName = "Broker", Sortable = true, NoWrap = true },
+                                            new DataGridOptions() { Id = "MATCHING_SINACOR", ColumnName = "Count Sinacor", Sortable = true },
+                                            new DataGridOptions() { Id = "MATCHING_LAYER", ColumnName = "Count Layer", Sortable = true },
+                                            new DataGridOptions() { Id = "MATCHING_DCOPY", ColumnName = "Count DropCopy", Sortable = true },
+                                            new DataGridOptions() { Id = "MARKET_ID", ColumnName = "MARKET_ID", Hidden = true },
+                                            new DataGridOptions() { Id = "DIFF", ColumnName = "Diff", Sortable = true }
+                                        },
+                                        legend: new List<DataGridLegend>() {
+                                            new DataGridLegend() { Css = "green-background", Description = "Match" },
+                                            new DataGridLegend() { Css = "red-background", Description = "Not Match" },
+                                        },
+                                        createdRow: @"if (data.MATCHING_DCOPY != 0) {
+                                                          if (data.MATCHING_LAYER >= data.MATCHING_DCOPY) {
+                                                              $(row).addClass('green-background');
+                                                          }
+                                                          else {
+                                                              $(row).addClass('red-background');
+                                                          }
+                                                      }
+                                                      else
+                                                      {
+                                                          if (data.MATCHING_LAYER >= data.MATCHING_SINACOR) {
+                                                            $(row).addClass('green-background');
+                                                          }
+                                                          else {
+                                                            $(row).addClass('red-background');
+                                                          }
+                                                      }",
+                                        showPaging: false,
+                                        itemsPerPage: 10,
+                                        autoWidth: true,
+                                        ajax: "GetMatching",
+                                        postData: "MATCHING_DT_TRADE: moment().format('DD/MM/YYYY'), MATCH: ''",
+                                        serverSide: true,
+                                        scrollX: true,
+                                        columnFilter: true
+
+                                    )
+                              })
+                          })
+                        })
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                    }
+                )
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/OpsControl/MatchingController.js?version=@ViewBag.JSVersion"></script>
+}

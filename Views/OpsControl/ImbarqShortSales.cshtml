@@ -1,0 +1,88 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="ImbarqShortSalesController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                @Html.RenderWidget(
+                    "wEquities",
+                    "Short Sales",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("informForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderSelect("IMBARQ_VALID", SelectType.Single, label: "Status", gridPart: 2, required: true, options: new Dictionary<string,string>() { {"1", "Processed"}, {"2", "Not Processed"} } , ng_model: "ctl.filter.IMBARQ_VALID", convertToNumber: true, ng_change: "ctl.update()" ),
+                                //Html.RenderSelect("IMBARQ_INDIC_SHORTSALES", SelectType.Single, label: "Short Indic.", gridPart: 2, required: true, options: new Dictionary<string,string>() { {"0", "No"}, {"1", "Yes"} } , ng_model: "ctl.filter.IMBARQ_INDIC_SHORTSALES", convertToNumber: true, ng_change: "ctl.update()" ),
+                                Html.RenderCheckbox("IMBARQ_INDIC_SHORTSALES", gridPart: 2, label: "Short Indic.", ng_model: "ctl.filter.IMBARQ_INDIC_SHORTSALES", ng_change: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 1, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Default, gridPart: 1, size: ButtonSize.md, label: "Export Excel", ng_click: "ctl.exportExcel()" ),
+                                Html.RenderHTML("<iframe id='my_iframe' style='display:none;'></iframe>")
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtEquities",
+                                        new List<DataGridOptions>() {
+                                            new DataGridOptions() { Id = "IMBARQ_ID", ColumnName = "ID", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_CLIENT", ColumnName = "Client", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_SUB_ACCOUNT", ColumnName = "Sub Account", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_ISIN", ColumnName = "Isin", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_TICKER", ColumnName = "Symbol", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_CUSTODY_DAY", ColumnName = "Asset Qty", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_SETTLE_DATE_DAY", ColumnName = "Settel Date Day", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_TRADE_DATE_DAY", ColumnName = "Trade Date Day", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_LONG_QTY_DAY", ColumnName = "Long Qty Day", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_SHORT_QTY_DAY", ColumnName = "Short Qty Day", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_NET_DAY", ColumnName = "Net Day", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_SETTLE_DATE_FOR", ColumnName = "Settel Date For", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_TRADE_DATE_FOR", ColumnName = "Trade Date For", Sortable = true},
+                                            //new DataGridOptions() { Id = "IMBARQ_CUSTODY_FOR", ColumnName = "CUSTODY_FOR", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_LONG_QTY_FOR", ColumnName = "Long Qty For", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_SHORT_QTY_FOR", ColumnName = "Short Qty For", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_NET_FOR", ColumnName = "Net For", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_SHORT_VALUE", ColumnName = "Short Value", Sortable = true},
+                                            //new DataGridOptions() { Id = "IMBARQ_VALID", ColumnName = "VALID", Sortable = true},
+                                            //new DataGridOptions() { Id = "IMBARQ_INDIC_SHORTSALES", ColumnName = "INDIC_SHORTSALES", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_FILE_NAME", ColumnName = "File Name", Sortable = true, cropSize = 30, NoWrap = true},
+                                        },
+                                        legend: new List<DataGridLegend>() {
+                                            new DataGridLegend() { Css = "green-background", Description = "Short Sales Indic." }
+                                        },
+                                        createdRow: @"if (data.IMBARQ_INDIC_SHORTSALES == 1) {
+                                                        $(row).addClass('green-background');
+                                                      }",
+                                        showPaging: true,
+                                        itemsPerPage: 10,
+                                        autoWidth: true,
+                                        ajax: "GetImbarqShortSales",
+                                        postData: "IMBARQ_VALID: 1, IMBARQ_INDIC_SHORTSALES: true",
+                                        serverSide: true,
+                                        scrollX: true,
+                                        columnFilter: true
+                                    )
+                              })
+                           })
+                        })
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                    }
+                )
+
+            </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/OpsControl/ImbarqShortSalesController.js?version=@ViewBag.JSVersion"></script>
+
+}

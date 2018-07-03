@@ -1,0 +1,82 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="PageController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wSinacorClient", "Sinacor Client", new List<IHtmlString>() {
+                    Html.RenderDataTable("dtSinacorClient", new List<DataGridOptions>() { new DataGridOptions() { Id = "CD_CLIENTE", Hidden = true, HidePhone = true, HideTablet = true, isKey = true },
+                    new DataGridOptions() { Id = "CLIENTE", ColumnName = "Client ID", Expand = true, Sortable = true, orderIndex = 0 },
+                    new DataGridOptions() { Id = "NM_CLIENTE", ColumnName = "Client Name", Sortable = true},
+                    new DataGridOptions() { Id = "CD_CPFCGC", ColumnName = "CPF / CGC", Sortable = true, HidePhone = true },
+                    new DataGridOptions() { Id = "NM_RESU_CLIE", ColumnName = "Alias", Sortable = true, HidePhone = true },
+                    new DataGridOptions() { Id = "CD_ASSESSOR", ColumnName = "Advisor", Sortable = true, HidePhone = true, HideTablet = true },
+                    new DataGridOptions() { Id = "IN_SITUAC", ColumnName = "Status", Sortable = true, HidePhone = true, HideTablet = true  },
+                        }, actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.modify", Color = ButtonColor.Warning, Icon = "edit" }
+                }, ajax: "GetClientsView") })
+
+                    @Html.RenderWidget("wClientItem", "{{ ctl.clientItemLabel }}", new List<IHtmlString>() {
+                   Html.RenderForm("clientForm", new List<IHtmlString>() {
+                        Html.RenderRow(new List<IHtmlString>() {
+                            @Html.RenderTextbox("CD_CLIENTE", "Client ID", gridPart: 4, maxLength:7, ng_model: "ctl.clientItem.CD_CLIENTE", enable: false),
+                            @Html.RenderSelect("CLIENT_TYPE", SelectType.Single, label: "Client Type", gridPart: 4, required: true, options: new Dictionary<string, string>() { {"1", "Clearing"}, {"2", "CMS"} }, ng_model:"ctl.clientItem.CLIENT_TYPE", convertToNumber: true),
+                            @Html.RenderTextbox("CLIENT_CCUSTO", "Cost Center", gridPart: 4, required: false, ng_model: "ctl.clientItem.CLIENT_CCUSTO"),
+                            @Html.RenderTextbox("CLIENT_NRE", "NRE", gridPart: 4, required: false, ng_model: "ctl.clientItem.CLIENT_NRE")                            
+                        }),
+                        Html.RenderRow(new List<IHtmlString>() {
+                        Html.RenderFieldset(new List<IHtmlString>() {
+                            Html.RenderDataTable("dtBroker", new List<DataGridOptions>() {
+                                new DataGridOptions() { Id = "CD_CLIENTE", Hidden = true, isKey = true },
+                                new DataGridOptions() { Id = "BROKER_ID", Hidden = true, isKey = true },
+                                new DataGridOptions() { Id = "BROKER_NAME", ColumnName = "Broker" },
+                                new DataGridOptions() { Id = "DC_ID", Hidden = true},
+                                new DataGridOptions() { Id = "DC", ColumnName="DropCopy" },
+                                new DataGridOptions() { Id = "GIVEUP_ACCOUNT", ColumnName="Giveup Account", isKey = true },
+                                new DataGridOptions() { Id = "CLIENT_ISREQUIRED_DC", ColumnName = "Requires DropCopy", isIcon = true },
+                                new DataGridOptions() { Id = "CLIENT_ISMM", ColumnName = "Market Maker", isIcon = true }
+                    }, actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.editBrokerClient", Color = ButtonColor.Warning, Icon = "edit" } }
+                        , ajax: "GetBrokersClientView", postData: "CD_CLIENTE: 0", showExport: false, showPaging: false, showSearch: false) }, legend: "Giveup Link") })
+                    })
+                },
+                footerItems: new List<IHtmlString>() {
+                   Html.RenderButton(ButtonType.Submit, ButtonColor.Primary, label: "Save", ng_click: "ctl.saveClient()")
+                },
+                icon: "pencil", ng_show: "ctl.clientItemVisible")
+
+                    @Html.RenderModal("gridEditModal", "GiveUp link info", new List<IHtmlString>() {
+                            Html.RenderForm("brokerClientForm", new List<IHtmlString>() {
+                                Html.RenderRow(new List<IHtmlString>() {
+                                    Html.RenderSelect("BROKER_ID", SelectType.Single, label: "Broker", gridPart: 4, required: true, ng_repeat: "vm.view.BROKER_ID_data", ng_model: "ctl.brokerClientItem.BROKER_ID", ajax: "GetBrokersIds", ng_change: "ctl.BROKER_ID_change()", convertToNumber: true, enable: false ),
+                                    Html.RenderSelect("DC_ID", SelectType.Single, label: "DropCopy", gridPart: 4, required: true, ng_repeat: "vm.view.DC_ID_data", ng_model: "ctl.brokerClientItem.DC_ID", ajax: "GetDcByBrokerId", initialized: true, convertToNumber: true ),
+                                    Html.RenderTextbox("GIVEUP_ACCOUNT", "Giveup Account", gridPart: 4, ng_model: "ctl.brokerClientItem.GIVEUP_ACCOUNT", enable: false)
+                                }),
+                                Html.RenderRow(new List<IHtmlString>() {
+                                    Html.RenderCheckbox("CLIENT_ISREQUIRED_DC", gridPart: 6, label: "Requires DropCopy", ng_model: "ctl.brokerClientItem.CLIENT_ISREQUIRED_DC"),
+                                    Html.RenderCheckbox("CLIENT_ISMM", gridPart: 6, label: "Market Maker", ng_model: "ctl.brokerClientItem.CLIENT_ISMM")
+                                })
+                            },
+                            new List<IHtmlString>() {
+                                @Html.RenderButton(ButtonType.Submit, ButtonColor.Primary, label: "Save", ng_click: "ctl.saveBrokerClient()"),
+                                @Html.RenderButton(ButtonType.Button, ButtonColor.Danger, label: "Cancel", attributes:"data-dismiss='modal'")
+                            }) }, @class: "no-padding")
+
+
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Register/ClientsController.js?version=@ViewBag.JSVersion"></script>
+}

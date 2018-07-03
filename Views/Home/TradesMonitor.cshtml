@@ -1,0 +1,46 @@
+﻿@{
+    Layout = "~/Views/Shared/_EmptyLayout.cshtml";
+    ViewBag.scripts = new List<string>();
+    ViewBag.bundles = new List<string>();
+    ViewBag.directives = new List<string>();
+    ViewBag.modules = new List<string>();
+}
+
+<div id="content" ng-app="App" ng-controller="TradesMonitorController as ctl">
+    <div ng-controller="viewController as vm">
+        @Html.RenderShareData("momentjsLongDateTimeFormat", (string)ViewBag.momentjsLongDateTimeFormat)
+        @Html.RenderWidget(
+            "wTradesMonitor",
+            "Health Trades Monitor",
+            new List<IHtmlString>() {
+                Html.RenderHTML("<h3 class='alert alert-info' ng-cloak>{{ ctl.refreshTime }}</h3>"),
+                Html.RenderChart(ChartType.Bar, 6, "gtrades", "/Home/GetTradesMonitorView", 100,
+                    labels: new List<string>() { "SMP Pending", "SMP Rejected", "SMP Approved", "Sinacor", "MICS" },
+                    series: new List<ChartSerie>() {
+                        new ChartSerie() { DataId = "Equities", Label = "Equities", RGBColor = "rgb(208, 219, 183)" },
+                        new ChartSerie() { DataId = "Futures", Label = "Futures", RGBColor = "rgb(125, 165, 192)" }
+                    },
+                    initialized: false,
+                    showLabels: true
+
+                )
+            },
+            new List<IHtmlString>() {
+                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+            },
+            sortable: true,
+            showEditButton: true,
+            gridPart: 12,
+            showToggleButton: true
+        )
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Home/TradesMonitor.js?version=@ViewBag.JSVersion"></script>
+}

@@ -1,0 +1,104 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="DropcopyController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget(
+            "wDropcopy",
+            "Dropcopy Register",
+            new List<IHtmlString>() {
+                Html.RenderDataTable("dtDropcopy",
+                    new List<DataGridOptions>() {
+                        new DataGridOptions() { Id = "DC_ID", ColumnName = "ID", Sortable = true, Expand = true, isKey = true },
+                        new DataGridOptions() { Id = "DC_SENDER", ColumnName = "Sender", Sortable = true },
+                        new DataGridOptions() { Id = "DC_TARGET", ColumnName = "Target", Sortable = true },
+                        new DataGridOptions() { Id = "TYPE", ColumnName = "Type", Sortable = true },
+                        new DataGridOptions() { Id = "IP", ColumnName = "Ip:port", Sortable = true, HidePhone = true, HideTablet = false },
+                        new DataGridOptions() { Id = "STATUS_CONNECTION", ColumnName = "Status Connection", Sortable = false, HidePhone = true, HideTablet = false, isHTML = true },
+                        new DataGridOptions() { Id = "BROKER_NAME", ColumnName = "Broker", Sortable = true, HidePhone = true, HideTablet = true  }
+                    },
+                    actions: new List<DataGridActions>() {
+                        new DataGridActions() { Ng_click = "ctl.modify", Color = ButtonColor.Warning, Icon = "edit" },
+                        new DataGridActions() { Ng_click = "ctl.remove", Color = ButtonColor.Danger, Icon = "trash-o" }
+                    },
+                    itemsPerPage: 15,
+                    ajax: "GetDropcopyView"
+                )
+            },
+            new List<IHtmlString>() {
+                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "plus", label: "Add", ng_click: "ctl.new()")
+            }
+        )
+
+                    @Html.RenderModal(
+            "gridEditModal",
+            "Edit DropCopy",
+            new List<IHtmlString>() {
+                Html.RenderForm(
+                    "editForm",
+                    new List<IHtmlString>() {
+                        Html.RenderRow(
+                            new List<IHtmlString>() {
+                                Html.RenderTextbox("DC_ID", "ID", gridPart: 2, maxLength:10, ng_model: "ctl.editItem.DC_ID", enable: false),
+                                Html.RenderSelect("BROKER_ID", SelectType.Single, label: "Broker", gridPart: 10, ng_repeat: "vm.view.BROKER_ID_data", ng_model: "ctl.editItem.BROKER_ID", ajax: "GetBrokersIds", convertToNumber: true, required: true)
+                            }
+                        ),
+                        Html.RenderRow(
+                            new List<IHtmlString>() {
+                                Html.RenderTextbox("DC_SENDER", "Sender", gridPart: 6, maxLength: 100, ng_model: "ctl.editItem.DC_SENDER", required: true),
+                                Html.RenderTextbox("DC_TARGET", "Target", gridPart: 6, maxLength: 100, ng_model: "ctl.editItem.DC_TARGET", required: true)
+                            }
+                        ),
+                        Html.RenderRow(
+                            new List<IHtmlString>() {
+                                Html.RenderSelect("DC_TYPE", SelectType.Single, label: "Type", gridPart: 4, options: new Dictionary<string, string>() { {"1", "Investidor"}, {"2", "Institutional"} }, ng_model:"ctl.editItem.DC_TYPE", convertToNumber: true, required: true ),
+                                Html.RenderTextbox("DC_IP_ADDRESS", "Ip", gridPart: 4, maxLength: 100, ng_model: "ctl.editItem.DC_IP_ADDRESS", required: true, data_mask: "099.099.099.099"),
+                                Html.RenderTextbox("DC_IP_PORT", "Ip port", gridPart: 4, type: TextboxType.Integer, maxLength: 6, ng_model: "ctl.editItem.DC_IP_PORT", required: true)
+                            }
+                        ),
+                        Html.RenderRow(
+                            new List<IHtmlString>() {
+                                Html.RenderCheckbox("DC_STATUS_CONNECTION", label: "Connected to FGS", ng_model: "ctl.editItem.DC_STATUS_CONNECTION")
+                            }
+                        )
+                    }
+                )
+            },
+            new List<IHtmlString>() {
+                Html.RenderButton(ButtonType.Submit, ButtonColor.Primary, label: "Save", ng_click: "ctl.save()"),
+                Html.RenderButton(ButtonType.Button, ButtonColor.Danger, label: "Cancel", attributes:"data-dismiss='modal'")
+            },
+            @class: "no-padding"
+        )
+
+                    @Html.RenderModal("gridDeleteModal", "Delete Dropcopy",
+            new List<IHtmlString>() {
+                Html.RenderHTML("<p>Are you sure you want delete this record?</p>")
+            },
+            new List<IHtmlString>() {
+                Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Delete", ng_click: "ctl.delete()"),
+                Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+            }
+        )
+                </div>
+                </div>
+
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Register/DropcopyController.js?version=@ViewBag.JSVersion"></script>
+}

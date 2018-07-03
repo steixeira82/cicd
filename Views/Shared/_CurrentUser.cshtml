@@ -1,0 +1,9 @@
+﻿<div class="login-info">
+    <span>
+        <a href="@Url.Action("profile", "home")" id="show-shortcut">
+            <img src="/administration/userphoto?USER_LOGIN=@ViewBag.UserSession.User" alt="@ViewBag.UserSession.LDAP.DisplayName" class="online" />
+            <span>@ViewBag.UserSession.LDAP.DisplayName</span>
+            @*<i class="fa fa-angle-down"></i>*@
+        </a>
+    </span>
+</div>

@@ -1,0 +1,83 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="CMSController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderShareData("momentjsLongDateTimeFormat", (string)ViewBag.momentjsLongDateTimeFormat)
+                    @Html.RenderWidget(
+                    "wCMS",
+                    "CMS",
+                    new List<IHtmlString>() {
+                        Html.RenderHTML("<h3 class='alert alert-info' ng-cloak>{{ ctl.refreshTime }}</h3>"),
+                        Html.RenderForm("matchingForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("dat_integracao", "Integration Date", gridPart: 2, required: true, ng_model: "ctl.filter.dat_integracao", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 3, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" )
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtCMS",
+                                        new List<DataGridOptions>() {
+                                            new DataGridOptions() { Id = "dat_integracao", ColumnName = "Integration Date", Sortable = true, Type = ColumnType.DateTime, NoWrap = true },
+                                            new DataGridOptions() { Id = "cod_oper_origem", ColumnName = "Trade Number", Sortable = true },
+                                            new DataGridOptions() { Id = "idt_empresa", ColumnName = "ABN ID", Sortable = true },
+                                            new DataGridOptions() { Id = "dat_movimento", ColumnName = "Mov. Date", Sortable = true, Type = ColumnType.Date, NoWrap = true },
+                                            new DataGridOptions() { Id = "cod_ordem", ColumnName = "Order Number", Sortable = true },
+                                            new DataGridOptions() { Id = "cod_cliente", ColumnName = "Client", Sortable = true },
+                                            new DataGridOptions() { Id = "cod_boleta", ColumnName = "Trade Number", Sortable = true },
+                                            new DataGridOptions() { Id = "idt_estrategia", ColumnName = "Strategy", Sortable = true },
+                                            new DataGridOptions() { Id = "ind_compra_venda", ColumnName = "side", Sortable = true },
+                                            new DataGridOptions() { Id = "dat_negociacao", ColumnName = "Trade Date", Sortable = true, Type = ColumnType.Date, NoWrap = true },
+                                            new DataGridOptions() { Id = "qtd_negociacao", ColumnName = "Quantity", Sortable = true },
+                                            new DataGridOptions() { Id = "val_pu_negociacao", ColumnName = "PU/Price", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "val_emolumento", ColumnName = "Emol. Fee", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "val_corretagem", ColumnName = "Broker Fee", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "cod_mercado_bmf", ColumnName = "Market", Sortable = true },
+                                            new DataGridOptions() { Id = "cod_serie_bmf", ColumnName = "Symbol", Sortable = true },
+                                            new DataGridOptions() { Id = "dat_venc_serie", ColumnName = "Settl. Date", Sortable = true, Type = ColumnType.Date, NoWrap = true },
+                                            new DataGridOptions() { Id = "qtd_lote", ColumnName = "Quantity Lote", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "idt_indice_custo", ColumnName = "Index", Sortable = true },
+                                            new DataGridOptions() { Id = "idt_moeda_conversao", ColumnName = "Currency", Sortable = true },
+                                            new DataGridOptions() { Id = "cod_boleta_superior", ColumnName = "cod_boleta_superior", Sortable = true, Hidden = true },
+                                            new DataGridOptions() { Id = "cod_boleta_externa", ColumnName = "External Trade Number", Sortable = true },
+                                            new DataGridOptions() { Id = "idt_corretora", ColumnName = "CNPJ Broker", Sortable = true },
+                                            new DataGridOptions() { Id = "sta_quantidade", ColumnName = "STA Quantity", Sortable = true },
+                                            new DataGridOptions() { Id = "mod_operacao", ColumnName = "Trade Type", Sortable = true, NoWrap = true },
+
+                                        },
+                                        showPaging: false,
+                                        autoWidth: true,
+                                        ajax: "GetCMSData",
+                                        postData: "dat_integracao: moment().format('DD/MM/YYYY')",
+                                        serverSide: false,
+                                        scrollX: true
+
+                                    )
+                              })
+                          })
+                        })
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                    }
+                )
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/OpsControl/CMSController.js?version=@ViewBag.JSVersion"></script>
+}

@@ -1,0 +1,121 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="ResubmitMICSController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget(
+                    "wResubmit",
+                    "Resubmit MICS",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("informForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("DT_DATMOV", "Mov. Date", gridPart: 2, required: true, ng_model: "ctl.filter.DT_DATMOV", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderDatetimePicker("DT_NEGOCIO", "Trade Date", gridPart: 2, required: true, ng_model: "ctl.filter.DT_NEGOCIO", allowTime: false, ng_change: "ctl.update()" ),
+                                //Html.RenderSelect("FEE_CALCULATED", SelectType.Single, label: "Recalculated", gridPart: 2, required: true, options: new Dictionary<string,string>() { {"0", "No"}, {"1", "Yes"} } , ng_model: "ctl.filter.FEE_CALCULATED", convertToNumber: true, ng_change: "ctl.update()" ),
+                                Html.RenderCheckbox("FEE_CALCULATED", gridPart: 2, label: "Only Recalculated", ng_model: "ctl.filter.FEE_CALCULATED", ng_change: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, id: "idSearch", gridPart: 2, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" )
+                            })
+                        }),
+                        Html.RenderDataTable("dtResubmit",
+                                new List<DataGridOptions>() {
+                                    new DataGridOptions() { Id = "ROW_ID", ColumnName = "ROW_ID", Sortable = true, isKey = true, Hidden = true },
+                                    new DataGridOptions() { Id = "DT_DATMOV", ColumnName = "Mov. Date", Sortable = true, Type = ColumnType.Date },
+                                    new DataGridOptions() { Id = "DT_NEGOCIO", ColumnName = "Trade Date", Sortable = true, Type = ColumnType.Date },
+                                    new DataGridOptions() { Id = "CD_CLIENTE", ColumnName = "Client", Sortable = true},
+                                    new DataGridOptions() { Id = "NM_CLIENTE", ColumnName = "Client Name", Sortable = true, NoWrap = true },
+                                    new DataGridOptions() { Id = "CD_NEGOCIO", ColumnName = "Symbol", Sortable = true },
+                                    new DataGridOptions() { Id = "NR_NEGOCIO", ColumnName = "Trade Number", Sortable = true},
+                                    new DataGridOptions() { Id = "CD_NATOPE", ColumnName = "Side", Sortable = true },
+                                    new DataGridOptions() { Id = "QT_QTDESP", ColumnName = "Qty", Sortable = true },
+                                    new DataGridOptions() { Id = "VL_NEGOCIO", ColumnName = "Price", Sortable = true },
+                                    new DataGridOptions() { Id = "VL_TOTNEG", ColumnName = "Volumn", Sortable = true },
+                                    new DataGridOptions() { Id = "Exercise_Price", ColumnName = "Exercise Price", Sortable = true },
+                                    new DataGridOptions() { Id = "VAL_CORT_EXEC", ColumnName = "Broker Fee", Sortable = true },
+                                    new DataGridOptions() { Id = "COD_PAR_NEG", ColumnName = "Broker", Sortable = true },
+                                    new DataGridOptions() { Id = "COD_IDT_CON_PAR_ORIG", ColumnName = "GiveUp Link", Sortable = true },
+                                    new DataGridOptions() { Id = "TIPO_MERC", ColumnName = "Market Type", Sortable = true },
+                                    new DataGridOptions() { Id = "EXPIRE_DATE", ColumnName = "Expire Date", Sortable = true, Type = ColumnType.Date },
+                                    new DataGridOptions() { Id = "ISIN", ColumnName = "ISIN", Sortable = true },
+
+                                },
+                                selectableKey: "ROW_ID",
+                                selectEvent: "ctl.select()",
+                                showPaging: true,
+                                itemsPerPage: 10,
+                                autoWidth: true,
+                                ajax: "GetResubmitMICS",
+                                postData: "DT_DATMOV: moment().format('DD/MM/YYYY'), DT_NEGOCIO: moment().format('DD/MM/YYYY'), FEE_CALCULATED: ''",
+                                serverSide: true,
+                                columnFilter: true
+                        ),
+                        Html.RenderFieldset(new List<IHtmlString>() {
+                        Html.RenderDataTable("dtSelectedResubmit",
+                                new List<DataGridOptions>() {
+                                    new DataGridOptions() { Id = "ROW_ID", ColumnName = "ROW_ID", Sortable = true, isKey = true, keytype = KeyType.String, Hidden = true },
+                                    new DataGridOptions() { Id = "DT_DATMOV", ColumnName = "Mov. Date", Sortable = true, Type = ColumnType.Date },
+                                    new DataGridOptions() { Id = "DT_NEGOCIO", ColumnName = "Trade Date", Sortable = true, Type = ColumnType.Date },
+                                    new DataGridOptions() { Id = "CD_CLIENTE", ColumnName = "Client", Sortable = true},
+                                    new DataGridOptions() { Id = "NM_CLIENTE", ColumnName = "Client Name", Sortable = true, NoWrap = true },
+                                    new DataGridOptions() { Id = "CD_NEGOCIO", ColumnName = "Symbol", Sortable = true },
+                                    new DataGridOptions() { Id = "NR_NEGOCIO", ColumnName = "Trade Number", Sortable = true},
+                                    new DataGridOptions() { Id = "CD_NATOPE", ColumnName = "Side", Sortable = true },
+                                    new DataGridOptions() { Id = "QT_QTDESP", ColumnName = "Qty", Sortable = true },
+                                    new DataGridOptions() { Id = "VL_NEGOCIO", ColumnName = "Price", Sortable = true },
+                                    new DataGridOptions() { Id = "VL_TOTNEG", ColumnName = "Volumn", Sortable = true },
+                                    new DataGridOptions() { Id = "Exercise_Price", ColumnName = "Exercise Price", Sortable = true },
+                                    new DataGridOptions() { Id = "VAL_CORT_EXEC", ColumnName = "Broker Fee", Sortable = true },
+                                    new DataGridOptions() { Id = "COD_PAR_NEG", ColumnName = "Broker", Sortable = true },
+                                    new DataGridOptions() { Id = "COD_IDT_CON_PAR_ORIG", ColumnName = "GiveUp Link", Sortable = true },
+                                    new DataGridOptions() { Id = "TIPO_MERC", ColumnName = "Market Type", Sortable = true },
+                                    new DataGridOptions() { Id = "EXPIRE_DATE", ColumnName = "Expire Date", Sortable = true, Type = ColumnType.Date },
+                                    new DataGridOptions() { Id = "ISIN", ColumnName = "ISIN", Sortable = true },
+                                },
+                                actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.unselect", Color = ButtonColor.Danger, Icon = "times" } },
+                                createdRow:     @"if (data.FEE_CALCULATED == 1) {
+                                                $(row).addClass('red-background');
+                                                }",                                
+                                showPaging: true,
+                                showExport: false,
+                                autoWidth: true,
+                                ajax: "GetResubmitSelectedMICS",
+                                postData: "ROW_IDS: ['']",
+                                serverSide: true,
+                                columnFilter: true
+                        )}, legend: "Selected Items")
+                    },
+                    toolbarItens: new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                    },
+                    footerItems: new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 2, size: ButtonSize.md, label: "Resubmit", ng_click: "ctl.confirmResubmit()" )
+                    }
+                )
+                    @Html.RenderModal("confirmResubmit", "Confirm Resubmit", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want to resubmit trades?</p>")
+                       }, new List<IHtmlString>() {
+                           Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Resubmit", ng_click: "ctl.resubmit()"),
+                           Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/MarketData/ResubmitMICSController.js?version=@ViewBag.JSVersion"></script>
+
+}

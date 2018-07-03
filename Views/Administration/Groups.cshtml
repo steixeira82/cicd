@@ -1,0 +1,74 @@
+﻿@{
+    ViewBag.Title = "Groups";
+    ViewBag.scripts = new List<string>();
+    ViewBag.bundles = new List<string>();
+    ViewBag.directives = new List<string>();
+    ViewBag.modules = new List<string>();
+}
+<div id="content" ng-app="App" ng-controller="GroupsController as ctl">
+    <div ng-controller="viewController as vm">
+        <!-- widget grid -->
+        <section id="widget-grid" class="">
+
+            <!-- row -->
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wGroups", "Groups", new List<IHtmlString>() {
+                    Html.RenderDataTable("dtAuthorization", new List<DataGridOptions>() { new DataGridOptions() { Id = "GROUP_ID", ColumnName = "ID", Sortable = true, isKey = true },
+                               new DataGridOptions() { Id = "GROUP_NAME", ColumnName = "Group Name", Sortable = true }
+                                }, actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.modify", Color = ButtonColor.Warning, Icon = "edit" },
+                                                                          new DataGridActions() { Ng_click = "ctl.remove", Color = ButtonColor.Danger, Icon = "trash-o" }}
+                                 , ajax: "GetGroupsView")
+                    }, new List<IHtmlString>() { Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "plus", label: "Add", ng_click: "ctl.new()") }, icon: "table")
+
+
+                    @Html.RenderModal("gridEditModal", "Edit Authorization", new List<IHtmlString>() {
+                    Html.RenderForm("editForm", new List<IHtmlString>() {
+                        Html.RenderRow(new List<IHtmlString>() {
+                            @Html.RenderTextbox("GROUP_ID", "ID", gridPart: 2, maxLength:10, ng_model: "ctl.editItem.GROUP_ID", enable: false),
+                            @Html.RenderTextbox("GROUP_NAME", "Group Name", gridPart: 10, maxLength: 100, ng_model: "ctl.editItem.GROUP_NAME", required: true, valGroup: "group")
+                        }),
+                        @Html.RenderRow(new List<IHtmlString>() {
+                        @Html.RenderFieldset(new List<IHtmlString>() {
+                            @Html.RenderRow(new List<IHtmlString>() {
+                                @Html.RenderSelect("USERS", SelectType.Multiple, gridPart: 9, label: "Users", height: 150, ng_repeat: "vm.view.USERS_data", ng_model: "ctl.editItem.USERS", ajax: "GetUsersFromGroup", initialized: false),
+                                @Html.RenderButton(ButtonType.Button, ButtonColor.Danger, gridPart: 3, label: "Remove", ng_click: "ctl.removeUser()")
+                            }),
+                            @Html.RenderRow(new List<IHtmlString>() {
+                                @Html.RenderTextbox("USER", "Enter an user to add (domain\\user)", gridPart: 9, ng_model: "ctl.userItem.user", maxLength:50, required: true, valGroup: "addUser", valAjax: new AjaxValidation() {Method = "ValidateUser", ErrorMessage = "Invalid user name!" }),
+                                @Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 3, label: "Add", ng_click: "ctl.addUser()")
+                            }) }, legend: "Users in group"), }),
+                        @Html.RenderRow(new List<IHtmlString>() {
+                            @Html.RenderFieldset(new List<IHtmlString>() {
+                            @Html.RenderTreeview(12, "GROUP_RULE", "Rules", "ctl.editGroupRule.RULE_IDS", "GetRulesTree", initialized: false)
+                            }, "Rules in group")
+                        }),
+                    },
+                    new List<IHtmlString>() {
+                        @Html.RenderButton(ButtonType.Button, ButtonColor.Primary, label: "Save", ng_click: "ctl.save()"),
+                        @Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes:"data-dismiss='modal'") })
+                }, @class: "no-padding")
+
+                    @Html.RenderModal("gridDeleteModal", "Delete Authorization", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want delete this record?</p>")
+                       }, new List<IHtmlString>() {
+                           Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Delete", ng_click: "ctl.delete()"),
+                           Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+                    
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Administration/GroupsController.js?version=@ViewBag.JSVersion"></script>
+}
+
+

@@ -1,0 +1,89 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="CarryingFeeController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wCarryingFeePolicies", "Carrying Fee Policies", new List<IHtmlString>() {
+                        Html.RenderForm("filterForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("DT_START", "Start Date", gridPart: 2, required: true, ng_model: "ctl.filter.DT_START", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderDatetimePicker("DT_END", "End Date", gridPart: 2, required: true, ng_model: "ctl.filter.DT_END", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderSelect("CD_CLIENTE", SelectType.Single, label: "Client", gridPart: 3, ng_repeat: "vm.view.CD_CLIENTE_data", ng_model: "ctl.filter.CD_CLIENTE", ajax: "GetClientIds", convertToNumber: true, required: false, ng_change: "ctl.update()"),
+                                Html.RenderSelect("FEE_TYPE", SelectType.Single, label: "Fee Type", gridPart: 3, ng_repeat: "vm.view.FEE_TYPE_data", ng_model: "ctl.filter.FEE_TYPE", ajax: "GetFeeTypes", convertToNumber: true, ng_change: "ctl.update()"),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 2, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" )
+                            })
+                            ,
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtCarryingFeePolicies", new List<DataGridOptions>() {
+                                        new DataGridOptions() { Id = "CD_CLIENTE", Sortable = true, isKey = true, ColumnName = "Client Name", Hidden = true },
+                                        new DataGridOptions() { Id = "CLIENTE", Sortable = true, ColumnName = "Client Name" },
+                                        new DataGridOptions() { Id = "FEE_TYPE", ColumnName = "Fee Type", Expand = true, Hidden = true },
+                                        new DataGridOptions() { Id = "FEE_TYPE_NAME", ColumnName = "Fee Type", Expand = true },
+                                        new DataGridOptions() { Id = "FACTOR", ColumnName = "Factor %", Expand = true, Type = ColumnType.Decimal4 },
+                                        new DataGridOptions() { Id = "DT_START", ColumnName = "Start Date", Expand = true, Type = ColumnType.Date },
+                                        new DataGridOptions() { Id = "DT_END", ColumnName = "End Date", Expand = true, Type = ColumnType.Date }
+                                        },
+                                        actions: new List<DataGridActions>() { 
+                                            new DataGridActions() { Ng_click = "ctl.modify", Color = ButtonColor.Warning, Icon = "edit" },
+                                            new DataGridActions() { Ng_click = "ctl.remove", Color = ButtonColor.Danger, Icon = "trash-o" }
+                                        },
+                                        itemsPerPage: 10,
+                                        postData: "DT_START: '', DT_END: '', CD_CLIENTE: '', FEE_TYPE: ''",
+                                        ajax: "GetCarryingFeePolicies",
+                                        columnFilter: true )
+                                })
+                            })
+                        })
+                    },
+                    new List<IHtmlString>() { Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "plus", label: "Add", ng_click: "ctl.new()") }
+                )
+
+                    @Html.RenderModal("gridEditModal", "Carrying Fee Policies", new List<IHtmlString>() {
+                    Html.RenderForm("editForm",
+                        new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("DATE_START", "Start Date", gridPart: 6, required: true, ng_model: "ctl.editItem.DATE_START", allowTime: false ),
+                                Html.RenderDatetimePicker("DATE_END", "End Date", gridPart: 6, required: true, ng_model: "ctl.editItem.DATE_END", allowTime: false )
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderSelect("CD_CLIENTE", SelectType.Single, label: "Client", gridPart: 6, ng_repeat: "vm.view.CD_CLIENTE_data", ng_model: "ctl.editItem.CD_CLIENTE", ajax: "GetClientIds", convertToNumber: true, required: true),
+                                Html.RenderSelect("FEE_TYPE", SelectType.Single, label: "Fee Type", gridPart: 6, ng_repeat: "vm.view.FEE_TYPE_data", ng_model: "ctl.editItem.FEE_TYPE", ajax: "GetFeeTypes", convertToNumber: true, required: true),
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderTextbox("FACTOR", "Factor %", gridPart: 12, type: TextboxType.Text, ng_model: "ctl.editItem.FACTOR", required: true, decimalScale: 4, positiveOnly: true, maxLength: 7),
+                            }),
+                        },
+                        new List<IHtmlString>() {
+                            Html.RenderButton(ButtonType.Submit, ButtonColor.Primary, label: "Save", ng_click: "ctl.save()"),
+                            Html.RenderButton(ButtonType.Button, ButtonColor.Danger, label: "Cancel", attributes:"data-dismiss='modal'")
+                        }
+                    )
+                }, @class: "no-padding")
+                    @Html.RenderModal("gridDeleteModal", "Delete Carrying Fee Policies", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want delete this record?</p>")
+                }, new List<IHtmlString>() {
+                                Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Delete", ng_click: "ctl.delete()"),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/CarryingFee/CarryingFeeController.js?version=@ViewBag.JSVersion"></script>
+}

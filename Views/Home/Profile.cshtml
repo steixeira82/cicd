@@ -1,0 +1,41 @@
+﻿@{
+    ViewBag.scripts = new List<string>();
+    ViewBag.bundles = new List<string>();
+    ViewBag.directives = new List<string>();
+    ViewBag.modules = new List<string>();
+}
+
+<div id="content" ng-app="App" ng-controller="ProfileController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wProfile", "Profile", new List<IHtmlString>() {
+                        Html.RenderForm("editForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderTextbox("USER_LOGIN", "Login", gridPart: 4, maxLength: 50, ng_model: "ctl.editItem.USER_LOGIN", enable: false),
+                                Html.RenderTextbox("USER_NAME", "Display Name", gridPart: 4, maxLength: 30, ng_model: "ctl.editItem.USER_NAME", required: false),
+                                Html.RenderTextbox("USER_PHONE", "Phone", gridPart: 4, maxLength: 30, ng_model: "ctl.editItem.USER_PHONE", required: false) }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderTextbox("USER_EMAIL", "E-mail", gridPart: 6, maxLength: 100, ng_model: "ctl.editItem.USER_EMAIL", required: false),
+                                Html.RenderImageUpload("USER_PHOTO", "User Photo", gridPart: 6, ajax: "UploadUserImage", ng_model: "ctl.editItem.USER_PHOTO", required: false, USER_LOGIN: "ctl.editItem.USER_LOGIN")
+                            }),
+                        },
+                        new List<IHtmlString>() {
+                            Html.RenderButton(ButtonType.Submit, ButtonColor.Primary, label: "Save", ng_click: "ctl.save()")
+                        })
+                    }, gridPart: 6)
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Home/ProfileController.js?version=@ViewBag.JSVersion"></script>
+}

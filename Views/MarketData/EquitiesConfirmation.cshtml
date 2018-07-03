@@ -1,0 +1,136 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="EquitiesConfirmationController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                @Html.RenderWidget(
+                    "wEquities",
+                    "Equities",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("informForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("DT_PREGAO", "Trade Date", gridPart: 2, required: true, ng_model: "ctl.filter.DT_PREGAO", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderSelect("STATUS", SelectType.Single, label: "Status", gridPart: 2, required: true, options: new Dictionary<string,string>() { {"1", "Invalid"}, {"2", "Processed"}, {"3", "Sent to MICS"} } , ng_model: "ctl.filter.STATUS", convertToNumber: true, ng_change: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 3, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" )
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtEquities",
+                                        new List<DataGridOptions>() {
+                                            new DataGridOptions() { Id = "EQUITIES_ID", ColumnName = "Internal ID", Sortable = true},
+                                            new DataGridOptions() { Id = "DT_PREGAO", ColumnName = "Trade Date", Sortable = true},
+                                            //new DataGridOptions() { Id = "HH_NEGOCIO", ColumnName = "Trade Date", Sortable = true, orderIndex = 1 },
+                                            new DataGridOptions() { Id = "NR_NEGOCIO", ColumnName = "Trade Number", Sortable = true },
+                                            new DataGridOptions() { Id = "CD_NATOPE", ColumnName = "Side", Sortable = true },
+                                            new DataGridOptions() { Id = "TP_MERCADO", ColumnName = "Market", Sortable = true },
+                                            new DataGridOptions() { Id = "CD_NEGOCIO", ColumnName = "Symbol", Sortable = true },
+                                            new DataGridOptions() { Id = "EOA", ColumnName = "EOA", Sortable = true },
+                                            new DataGridOptions() { Id = "QT_NEGOCIO", ColumnName = "Quantity", Sortable = true },
+                                            new DataGridOptions() { Id = "CD_CODISI", ColumnName = "ISIN", Sortable = true },
+                                            new DataGridOptions() { Id = "CD_CLIENTE", ColumnName = "Client", Sortable = true },
+                                            new DataGridOptions() { Id = "NM_CLIENTE", ColumnName = "Client Name", Sortable = true, NoWrap = true },
+                                            //new DataGridOptions() { Id = "NR_OFEMEGA", ColumnName = "NR_OFEMEGA", Sortable = true },
+                                            new DataGridOptions() { Id = "VL_NEGOCIO", ColumnName = "Price", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "DT_LIQUIDACAO", ColumnName = "Settlement", Sortable = true, Type = ColumnType.Date},
+                                            new DataGridOptions() { Id = "OPTION_TYPE", ColumnName = "Option Type", Sortable = true },
+                                            new DataGridOptions() { Id = "EXERCISE_PRICE", ColumnName = "Exercice Price", Sortable = true },
+                                            //new DataGridOptions() { Id = "PRODUCT_GROUP_CODE", ColumnName = "PRODUCT_GROUP_CODE", Sortable = true },
+                                            new DataGridOptions() { Id = "EXCH_BROKER_FEE", ColumnName = "Exch Broker Fee", Sortable = true, Type = ColumnType.Decimal2 },
+                                            //new DataGridOptions() { Id = "VL_TOTNEG", ColumnName = "VL_TOTNEG", Sortable = true },
+                                            //new DataGridOptions() { Id = "VL_TAXANA", ColumnName = "VL_TAXANA", Sortable = true },
+                                            //new DataGridOptions() { Id = "VL_VALDES", ColumnName = "VL_VALDES", Sortable = true },
+                                            //new DataGridOptions() { Id = "VL_IRCORR", ColumnName = "VL_IRCORR", Sortable = true },
+                                            //new DataGridOptions() { Id = "VL_COMASS", ColumnName = "VL_COMASS", Sortable = true },
+                                            //new DataGridOptions() { Id = "VL_AGENTE", ColumnName = "VL_AGENTE", Sortable = true },
+                                            new DataGridOptions() { Id = "VL_CORTOT", ColumnName = "VL_CORTOT", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "VL_TAXREG", ColumnName = "VL_TAXREG", Sortable = true, Type = ColumnType.Decimal2 },
+                                            //new DataGridOptions() { Id = "VL_TAXREG_CB", ColumnName = "VL_TAXREG_CB", Sortable = true },
+                                            new DataGridOptions() { Id = "VL_EMOLUM", ColumnName = "VL_EMOLUM", Sortable = true, Type = ColumnType.Decimal2 },
+                                            //new DataGridOptions() { Id = "VL_EMOLUM_BV", ColumnName = "VL_EMOLUM_BV", Sortable = true },
+                                            //new DataGridOptions() { Id = "VL_EMOLUM_CB", ColumnName = "VL_EMOLUM_CB", Sortable = true },
+                                            //new DataGridOptions() { Id = "VL_ENCARGOS", ColumnName = "VL_ENCARGOS", Sortable = true },
+                                            //new DataGridOptions() { Id = "VL_BASEIRDT", ColumnName = "VL_BASEIRDT", Sortable = true },
+                                            //new DataGridOptions() { Id = "VL_IRRETIDO", ColumnName = "VL_IRRETIDO", Sortable = true },
+                                            //new DataGridOptions() { Id = "VL_IRRF_DESPESA", ColumnName = "VL_IRRF_DESPESA", Sortable = true },
+                                            //new DataGridOptions() { Id = "VL_AJUNEG", ColumnName = "VL_AJUNEG", Sortable = true },
+                                            //new DataGridOptions() { Id = "VL_AJUPOS", ColumnName = "VL_AJUPOS", Sortable = true },
+                                            //new DataGridOptions() { Id = "VL_ISS", ColumnName = "VL_ISS", Sortable = true },
+                                            new DataGridOptions() { Id = "PROCESSED_FLAG", ColumnName = "PROCESSED_FLAG", Sortable = true, Hidden = true },
+                                            new DataGridOptions() { Id = "EXERCISE_FLAG", ColumnName = "Exercice Flag", Sortable = true },
+                                            //new DataGridOptions() { Id = "HALT_FLAG", ColumnName = "HALT_FLAG", Sortable = true },
+                                            new DataGridOptions() { Id = "DT_UPDATE", ColumnName = "Updated Date", Sortable = true, Type = ColumnType.DateTime, NoWrap = true  },
+                                            //new DataGridOptions() { Id = "EXTERNAL_NUMBER", ColumnName = "EXTERNAL_NUMBER", Sortable = true },
+                                            new DataGridOptions() { Id = "MEMO", ColumnName = "Routing Code", Sortable = true },
+                                            //new DataGridOptions() { Id = "CD_CLIENTE_DIGITO", ColumnName = "CD_CLIENTE_DIGITO", Sortable = true },
+                                            new DataGridOptions() { Id = "BROKER", ColumnName = "Broker", Sortable = true },
+                                            new DataGridOptions() { Id = "MICS_SYMBOL", ColumnName = "MICS Symbol", Sortable = true },
+                                            //new DataGridOptions() { Id = "NR_SEQDET", ColumnName = "NR_SEQDET", Sortable = true },
+                                            //new DataGridOptions() { Id = "NR_SEQCOMI", ColumnName = "NR_SEQCOMI", Sortable = true },
+                                            //new DataGridOptions() { Id = "NR_SEQOPE", ColumnName = "NR_SEQOPE", Sortable = true },
+                                            //new DataGridOptions() { Id = "NR_SEQORD", ColumnName = "NR_SEQORD", Sortable = true },
+                                            new DataGridOptions() { Id = "EXPIRE_DATE", ColumnName = "Expiry Date", Sortable = true },
+                                            //new DataGridOptions() { Id = "GXI_MESSAGE", ColumnName = "GXI_MESSAGE", Sortable = true },
+                                            //new DataGridOptions() { Id = "CD_TITOBJ", ColumnName = "CD_TITOBJ", Sortable = true },
+                                            new DataGridOptions() { Id = "FLAG_INVALID", ColumnName = "FLAG_INVALID", Sortable = true, Hidden = true },
+                                            new DataGridOptions() { Id = "JMS_MESSAGEID", ColumnName = "JMS MESSAGEID", Sortable = true, NoWrap = true },
+                                            new DataGridOptions() { Id = "DT_LASTSENT", ColumnName = "Last Sent", Sortable = true, Type = ColumnType.DateTime, NoWrap = true },
+                                            //new DataGridOptions() { Id = "CD_NEGOCIO_ORI", ColumnName = "CD_NEGOCIO_ORI", Sortable = true },
+                                            //new DataGridOptions() { Id = "NR_NEGOCIO_ORI", ColumnName = "NR_NEGOCIO_ORI", Sortable = true },
+                                            //new DataGridOptions() { Id = "EQUITIES_MOVI_ORIGIN", ColumnName = "EQUITIES_MOVI_ORIGIN", Sortable = true },
+                                            //new DataGridOptions() { Id = "MOV_ROW_ID", ColumnName = "MOV_ROW_ID", Sortable = true }
+                                            new DataGridOptions() { Id = "COD_IDT_CON_PAR_ORIG", ColumnName = "Giveup Link", Sortable = true },
+                                            new DataGridOptions() { Id = "CANL_NEG", ColumnName = "Origin", Sortable = true },
+                                            new DataGridOptions() { Id = "FLAG_INVALID_REASON", ColumnName = "Reason", Sortable = true },
+                                        },
+                                        legend: new List<DataGridLegend>() {
+                                            new DataGridLegend() { Css = "red-backgroud", Description = "Invalid" },
+                                            new DataGridLegend() { Css = "yellow-backgroud", Description = "Processed" },
+                                            new DataGridLegend() { Css = "green-backgroud", Description = "Sent to MICS" },
+                                        },
+                                        createdRow: @"if (data.FLAG_INVALID == 1) {
+                                                        $(row).addClass('red-backgroud');
+                                                      }
+                                                      else if (data.PROCESSED_FLAG == 3) {
+                                                        $(row).addClass('green-backgroud');
+                                                      }
+                                                      else if (data.PROCESSED_FLAG == 2) {
+                                                        $(row).addClass('yellow-backgroud');
+                                                      }",
+                                        showPaging: true,
+                                        itemsPerPage: 10,
+                                        autoWidth: true,
+                                        ajax: "GetEquitiesConfirmation",
+                                        postData: "DT_PREGAO: moment().format('DD/MM/YYYY'), STATUS: ''",
+                                        serverSide: true,
+                                        scrollX: true
+
+                                    )
+                              })
+                          })
+                        })
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                    }
+                )
+
+            </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/MarketData/EquitiesConfirmationController.js"></script>
+
+}

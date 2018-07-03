@@ -1,0 +1,175 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="PageController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wProcess", "Processes", new List<IHtmlString>() {
+                    Html.RenderDataTable("dtProcesses", new List<DataGridOptions>() { new DataGridOptions() { Id = "PROCESS_ID", Hidden = true, HidePhone = true, HideTablet = true, isKey = true },
+                    new DataGridOptions() { Id = "PROCESS_NAME", ColumnName = "Process Name", Expand = true, Sortable = true, orderIndex = 0 },
+                    new DataGridOptions() { Id = "PROCESS_TIME_EXEC", ColumnName = "Execution Time", Sortable = true},
+                    new DataGridOptions() { Id = "PROCESS_TIME_LIMIT", ColumnName = "Execution Time Limit", Sortable = true, HidePhone = true },
+                    new DataGridOptions() { Id = "PROCESS_TYPE", ColumnName = "Process Type", Sortable = true, HidePhone = true },
+                    new DataGridOptions() { Id = "GROUP_NAME", ColumnName = "Group", Sortable = true, HidePhone = true, HideTablet = true }
+                        }, actions: new List<DataGridActions>() {
+                                                                  new DataGridActions() { Ng_click = "ctl.confirmExecuteProcess", Color = ButtonColor.Default, Icon = "play" },
+                                                                  new DataGridActions() { Ng_click = "ctl.modifyProcess", Color = ButtonColor.Warning, Icon = "edit" },
+                                                                  new DataGridActions() { Ng_click = "ctl.removeProcess", Color = ButtonColor.Danger, Icon = "trash-o" }
+                }, ajax: "GetProcessesView") },
+                new List<IHtmlString>() { Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "plus", label: "Add", ng_click: "ctl.newProcess()") }
+                )
+
+                    @Html.RenderWidget("wProcessItem", "{{ ctl.processItemLabel }}", tabItens: new List<IHtmlString>() {
+                    Html.RenderWidgetTab("processTab", new List<IHtmlString>() {
+                       Html.RenderForm("processForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderTextbox("PROCESS_ID", "Process ID", gridPart: 4, maxLength:7, ng_model: "ctl.processItem.PROCESS_ID", enable: false),
+                                Html.RenderTextbox("PROCESS_NAME", "Process Name", gridPart: 4, maxLength: 200, ng_model: "ctl.processItem.PROCESS_NAME", required: true),
+                                Html.RenderSelect("PROCESS_TYPE", SelectType.Single, label: "Process Type", gridPart: 4, required: true, options: new Dictionary<string, string>() { {"1", "Administrative"}, {"2", "Operational"} }, ng_model:"ctl.processItem.PROCESS_TYPE", convertToNumber: true),
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderSelect("GROUP_ID", SelectType.Single, label: "Group", gridPart: 3, ng_repeat: "vm.view.GROUP_ID_data", ng_model: "ctl.processItem.GROUP_ID", ajax: "GetGroups", convertToNumber: true, required: true),
+                                Html.RenderSelect("PROCESS_EMAIL_NOTIFY", SelectType.Single, label: "Notification Level", gridPart: 3, required: true, options: new Dictionary<string, string>() { {"0", "Nothing"}, {"1", "Warning / Error"}, {"2", "Process Init"}, {"3", "Process Step"} }, ng_model:"ctl.processItem.PROCESS_EMAIL_NOTIFY", convertToNumber: true),
+                                Html.RenderCheckbox("PROCESS_FLAG_CHECK", gridPart: 3, label: "Needs Validation", ng_model: "ctl.processItem.PROCESS_FLAG_CHECK"),
+                                Html.RenderCheckbox("PROCESS_FLAG_HISTORY", gridPart: 3, label: "Allow History Execution", ng_model: "ctl.processItem.PROCESS_FLAG_HISTORY")
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderTextbox("PROCESS_TIME_EXEC", "Execution Time", gridPart: 3, maxLength: 5, data_mask: "99:99", required: true, ng_model: "ctl.processItem.PROCESS_TIME_EXEC"),
+                                Html.RenderTextbox("PROCESS_TIME_LIMIT", "Execution Time Limit", gridPart: 3, maxLength: 5, data_mask: "99:99", required: true, ng_model: "ctl.processItem.PROCESS_TIME_LIMIT"),
+                                Html.RenderSelect("PROCESS_PARENT_ID", SelectType.Single, label: "Parent Process", gridPart: 3, ng_repeat: "vm.view.PROCESS_PARENT_ID_data", ng_model: "ctl.processItem.PROCESS_PARENT_ID", ajax: "GetProcessesByProcessId", convertToNumber: true),
+                            })
+                       })
+                    }, active: true),
+                    Html.RenderWidgetTab("fileAutomationTab", new List<IHtmlString>() {
+                        Html.RenderFieldset(new List<IHtmlString>() {
+                            Html.RenderDataTable("dtFileAutomation", new List<DataGridOptions>() {
+                                new DataGridOptions() { Id = "FILE_ID", ColumnName = "ID", isKey = true },
+                                new DataGridOptions() { Id = "FILE_TYPE", ColumnName = "Automation Type" },
+                                new DataGridOptions() { Id = "FILES_CNPJ_CLIENT", ColumnName = "CNPJ" },
+                                new DataGridOptions() { Id = "NM_CLIENTE", ColumnName = "Client Name" }
+                            }, actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.editFileAutomation", Color = ButtonColor.Warning, Icon = "edit" },
+                                                                        new DataGridActions() { Ng_click = "ctl.removeFileAutomation", Color = ButtonColor.Danger, Icon = "trash-o" }}
+                        , ajax: "GetFileAutomationsViewByProcessesId", postData: "PROCESS_ID: 0", showExport: false, showPaging: false, showSearch: false)
+                        },
+                        toolbarItems: new List<IHtmlString>() { Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "plus", label: "Add", ng_click: "ctl.newFileAutomation()") },
+                        legend: "File Automation")
+                    }),
+                    Html.RenderWidgetTab("manualTab", new List<IHtmlString>() {
+                        Html.RenderFieldset(new List<IHtmlString>() {
+                            Html.RenderDataTable("dtManual", new List<DataGridOptions>() {
+                                new DataGridOptions() { Id = "MANUAL_ID", ColumnName = "ID", isKey = true },
+                                new DataGridOptions() { Id = "MANUAL_NAME", ColumnName = "Name"},
+                                new DataGridOptions() { Id = "MANUAL_SUBJECT", ColumnName = "E-mail Subject" }
+                            }, actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.editManual", Color = ButtonColor.Warning, Icon = "edit" },
+                                                                        new DataGridActions() { Ng_click = "ctl.removeManual", Color = ButtonColor.Danger, Icon = "trash-o" }}
+                        , itemsPerPage: 5, ajax: "GetManualByProcessesId", postData: "PROCESS_ID: 0", showExport: false, showPaging: false, showSearch: false)
+                        }, toolbarItems: new List<IHtmlString>() { Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "plus", label: "Add", ng_click: "ctl.newManual()") }, legend: "Manual")
+                    })
+                    },
+                    footerItems: new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Submit, ButtonColor.Primary, label: "Save", ng_click: "ctl.saveProcess()")
+                    },
+                    toolbarTabSelectorItens: new List<IHtmlString>() {
+                        Html.RenderWidgetTabSelector("Process", "processTab", "pencil", active: true),
+                        Html.RenderWidgetTabSelector("File Automations", "fileAutomationTab", "copy"),
+                        Html.RenderWidgetTabSelector("Manual Processes", "manualTab", "check-circle")
+                },
+                icon: "pencil", color: "blueLight", ng_show: "ctl.processItemVisible")
+
+                    @Html.RenderModal("deleteProcess", "Delete process", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want delete this record?</p>")
+                       }, new List<IHtmlString>() {
+                           Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Delete", ng_click: "ctl.deleteProcess()"),
+                           Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+
+                    @Html.RenderModal("confirmExecuteProcess", "Execute process", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want to execute this process?</p>"),
+                    Html.RenderForm("confirmExecuteProcessForm", new List<IHtmlString>() {
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderDatetimePicker("EXEC_DT_REF", "Reference Date", gridPart: 6, required: true, ng_model: "ctl.executeProcessItem.EXEC_DT_REF", allowTime: false  ),
+                            Html.RenderDatetimePicker("EXEC_DT_REF_END", "Reference End Date", gridPart: 6, required: true, ng_model: "ctl.executeProcessItem.EXEC_DT_REF_END", allowTime: false)
+                        })
+                    })
+                    }, new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Execute", ng_click: "ctl.executeProcess()"),
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                    }
+                )
+
+                    @Html.RenderModal("modalFileAutomation", "File Automation", new List<IHtmlString>() {
+                    Html.RenderForm("fileAutomationForm", new List<IHtmlString>() {
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderTextbox("FILE_ID", "File ID", gridPart: 4, maxLength:7, ng_model: "ctl.fileAutomationItem.FILE_ID", enable: false),
+                            Html.RenderSelect("FILES_CNPJ_CLIENT", SelectType.Single, label: "CNPJ", gridPart: 8, ng_repeat: "vm.view.FILES_CNPJ_CLIENT_data", ng_model: "ctl.fileAutomationItem.FILES_CNPJ_CLIENT", ajax: "GetCNPJs", convertToNumber: true),
+                        }),
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderSelect("FILE_TYPE", SelectType.Single, label: "Automation Type", gridPart: 4, required: true, options: new Dictionary<string, string>() { {"1", "Split"}, {"2", "Excel Report"}, {"3", "Imbarq"} }, ng_model:"ctl.fileAutomationItem.FILE_TYPE", convertToNumber: true),
+                            Html.RenderSelect("VIEW_NAME", SelectType.Single, label: "View Name", gridPart: 8, options: new Dictionary<string, string>() { {"VW_REPORT_UK_CONFIRMATION", "UK CONFIRMATION"}, {"VW_REPORT_ITAU_CONFIRMATION", "ITAU CONFIRMATION"}, {"VW_REPORT_EQUITIES_CONFIRMATION", "EQUITIES CONFIRMATION"}, {"VW_REPORT_POSITION_OPTION", "POSITION OPTION"}, {"VW_REPORT_MISSING_PAPT", "MISSING PAPT"} }, ng_model:"ctl.fileAutomationItem.VIEW_NAME")
+                        }),
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderTextbox("FILE_SUBJECT", "Subject", gridPart: 8, ng_model: "ctl.fileAutomationItem.FILE_SUBJECT", enable: true),
+                            Html.RenderSelect("GROUP_EMAIL_ID", SelectType.Single, label: "E-Group", gridPart: 4, ng_repeat: "vm.view.GROUP_EMAIL_ID_data", ng_model: "ctl.fileAutomationItem.GROUP_EMAIL_ID", ajax: "GetGroupEmails", convertToNumber: true)
+                        }),
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderEditor("FILE_TEMPLATE", "Template", gridPart: 12, height: 300, ng_model: "ctl.fileAutomationItem.FILE_TEMPLATE", enable: true)
+                        })
+                    },
+                    new List<IHtmlString>() {
+                        @Html.RenderButton(ButtonType.Submit, ButtonColor.Primary, label: "Save", ng_click: "ctl.saveFileAutomation()"),
+                        @Html.RenderButton(ButtonType.Button, ButtonColor.Danger, label: "Cancel", attributes:"data-dismiss='modal'")
+                    }) }, @class: "no-padding")
+
+                    @Html.RenderModal("deleteFileAutomation", "Delete File Automation", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want delete this record?</p>")
+                       }, new List<IHtmlString>() {
+                           Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Delete", ng_click: "ctl.deleteFileAutomation()"),
+                           Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+
+                    @Html.RenderModal("modalManual", "Manual Process", new List<IHtmlString>() {
+                    Html.RenderForm("manualForm", new List<IHtmlString>() {
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderTextbox("MANUAL_ID", "Manual ID", gridPart: 4, maxLength:7, ng_model: "ctl.manualItem.MANUAL_ID", enable: false),
+                            Html.RenderTextbox("MANUAL_NAME", "Name", gridPart: 4, ng_model: "ctl.manualItem.MANUAL_NAME", required: true, enable: true),
+                            Html.RenderTextbox("MANUAL_DESC", "Description", gridPart: 4, ng_model: "ctl.manualItem.MANUAL_DESC", required: true, enable: true)
+                        }),
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderTextbox("MANUAL_SUBJECT", "Subject", gridPart: 8, ng_model: "ctl.manualItem.MANUAL_SUBJECT", enable: true),
+                            Html.RenderSelect("GROUP_EMAIL_ID", SelectType.Single, label: "E-Group", gridPart: 4, ng_repeat: "vm.view.GROUP_EMAIL_ID_data", ng_model: "ctl.manualItem.GROUP_EMAIL_ID", ajax: "GetGroupEmails", convertToNumber: true)
+                        }),
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderEditor("MANUAL_TEMPLATE", "Template", gridPart: 12, height: 300, ng_model: "ctl.manualItem.MANUAL_TEMPLATE",  enable: true)
+                        })
+                    },
+                    new List<IHtmlString>() {
+                        @Html.RenderButton(ButtonType.Submit, ButtonColor.Primary, label: "Save", ng_click: "ctl.saveManual()"),
+                        @Html.RenderButton(ButtonType.Button, ButtonColor.Danger, label: "Cancel", attributes:"data-dismiss='modal'")
+                    }) }, @class: "no-padding")
+
+                    @Html.RenderModal("deleteManual", "Delete Manual Process", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want delete this record?</p>")
+                       }, new List<IHtmlString>() {
+                           Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Delete", ng_click: "ctl.deleteManual()"),
+                           Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Checklist/ProcessesController.js?version=@ViewBag.JSVersion"></script>
+}

@@ -1,0 +1,87 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="FeeMaintainanceGroupController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                    @Html.RenderWidget(
+                    "wResubmit",
+                    "Fee Maintainance Group",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("changeForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderDatetimePicker("DT_DATMOV", "Mov. Date", gridPart: 2, required: true, ng_model: "ctl.filter.DT_DATMOV", allowTime: false, ng_change: "ctl.update()" ),
+                            Html.RenderDatetimePicker("DT_NEGOCIO", "Trade Date", gridPart: 2, required: true, ng_model: "ctl.filter.DT_NEGOCIO", allowTime: false, ng_change: "ctl.update()" ),                                
+                            Html.RenderSelect("CD_CLIENTE", SelectType.Single, label: "Client", gridPart:2, ng_repeat: "vm.view.CD_CLIENTE_data", ng_model: "ctl.filter.CD_CLIENTE", ajax: "GetClientIds", convertToNumber: true, required: true, ng_change: "ctl.update()"),                            
+                            Html.RenderSelect("CD_BROKER", SelectType.Single, label: "Broker", gridPart: 2, ng_repeat: "ctl.view.CD_BROKER_data", ng_model: "ctl.filter.CD_BROKER", ajax: "GetBrokersIds", convertToNumber: true, required: true, ng_change: "ctl.update()"),
+                            Html.RenderSelect("CD_NEGOCIO", SelectType.Single, label: "Symbol", gridPart: 2, ng_repeat: "vm.view.CD_NEGOCIO_data", ng_model: "ctl.filter.CD_NEGOCIO", ajax: "GetSymbolsAll", convertToNumber: false, required: false, ng_change: "ctl.update()"),                                                                 
+                            //Html.RenderSelect("TIPO_MERC", SelectType.Single, label:"Market", gridPart:2, ng_repeat: "vm.view.MARKET_data", ng_model:"ctl.filter.TIPO_MERC", ajax:"GetMarkets", convertToNumber:true, required:true, ng_change: "ctl.update()"),
+                            Html.RenderSelect("TIPO_MERC", SelectType.Single, label: "Market", gridPart: 2, required: true, options: new Dictionary<string,string>() { {"2", "EQUITIES"}, {"3", "OPTIONS"} }, ng_model: "ctl.filter.TIPO_MERC", convertToNumber: false, ng_change: "ctl.update()" ),                            
+                            
+                            Html.RenderTextbox("VAL_CORT_EXEC_SUM", "Broker Fee", gridPart: 2, ng_model: "ctl.VAL_CORT_EXEC_SUM", required: false, decimalScale: 2, positiveOnly: true, enable:false, ngFocus: "ctl.focus($event)"),
+                            Html.RenderTextbox("VAL_CORR", "New Broker Fee", gridPart: 2, ng_model: "ctl.VAL_CORR", required: true, decimalScale: 2, positiveOnly: true,  ngFocus: "ctl.focus($event)")
+                           })
+                        }),
+                    },
+                    toolbarItens: new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                    },
+                    footerItems: new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Danger, id: "idConfirmNewCor", gridPart: 2, size: ButtonSize.md, label: "Calculate", ng_click: "ctl.confirmRecalc()", loading: true )
+                    })
+
+                    @Html.RenderWidget(
+                    "wResubmit",
+                    "Fee Maintainance Group",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("informForm", new List<IHtmlString>() {
+                        }),
+                        Html.RenderDataTable("dtTrades",
+                                new List<DataGridOptions>() {
+                                    new DataGridOptions() { Id = "ROW_ID", ColumnName = "ROW_ID", Sortable = true, isKey = true, Hidden = true, keytype = KeyType.String },                                    
+                                    new DataGridOptions() { Id = "DT_DATMOV", ColumnName = "Mov. Date", Sortable = true, Type = ColumnType.Date },
+                                    new DataGridOptions() { Id = "DT_NEGOCIO", ColumnName = "Trade Date", Sortable = true, Type = ColumnType.Date },
+                                    new DataGridOptions() { Id = "CD_CLIENTE", ColumnName = "Client", Sortable = true, isKey = true},
+                                    new DataGridOptions() { Id = "NM_CLIENTE", ColumnName = "Client Name", Sortable = true, NoWrap = true },
+                                    new DataGridOptions() { Id = "COD_PAR_NEG", ColumnName = "Broker", Sortable = true, isKey = true },
+                                    new DataGridOptions() { Id = "TIPO_MERC", ColumnName = "Market", Sortable = true, isKey = false },                                    
+                                    new DataGridOptions() { Id = "SUM_VL_TOTNEG", ColumnName = "Sum Volumn", Sortable = true },
+                                    new DataGridOptions() { Id = "SUM_VAL_CORT_EXEC", ColumnName = "Sum Broker Fee", Sortable = true, isKey = true, Type = ColumnType.Decimal2 },
+                                },
+                                showPaging: true,
+                                itemsPerPage: 6,
+                                autoWidth: true,
+                                ajax: "GetTradesMaintainanceGroup",
+                                postData: "DT_DATMOVC: moment().format('DD/MM/YYYY'), DT_DATMOVC: moment().format('DD/MM/YYYY'), STATUS: ''",
+                                serverSide: true,
+                                columnFilter: true
+                        )
+                    }
+                )
+
+                    @Html.RenderModal("confirmLoading", "Calculating - Please wait .....", new List<IHtmlString>() {
+                    Html.RenderHTML("<img src=/content/img/30.gif style='align:center;margin-left:auto;margin-right:auto;display:block'>") 
+                       })
+
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Fee/FeeMaintainanceGroupController.js?version=@ViewBag.JSVersion"></script>
+
+}

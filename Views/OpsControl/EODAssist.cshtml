@@ -1,0 +1,107 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="PageController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wEODA", "EOD Assist",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("informForm", new List<IHtmlString>() {
+                            
+                            Html.RenderRow(new List<IHtmlString>() {
+                                
+                                 Html.RenderFieldset( new List<IHtmlString>() { 
+                                        Html.RenderHTML(@"<table class='table table-bordered'>
+									<thead>
+										<tr>
+											<th width='50%'>Check Process</th>
+											<th width='50%'>Status</th>
+										</tr>
+									</thead>
+									<tbody>
+                                        <tr ng-repeat='item in ctl.infos' ng-cloak>
+											<td>{{ item.ITEM }}</td>
+											<td><span class='txt-color-{{ item.COLOR }}'><i class='fa fa-{{ item.ICON }}'></i>&nbsp;{{ item.VALUE }}</span></td>
+										</tr>
+									</tbody>
+								</table>")}, @class: "col-xs-12 col-sm-5 col-md-5 col-lg-5", style: "margin-top: 4px; "),
+                                         
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtProcess",
+                                        new List<DataGridOptions>() { 
+                                            new DataGridOptions() { Id = "NUM_SEQ_LFWMON_PROS", Hidden = true, isKey = true},
+                                            new DataGridOptions() { Id = "NOME_PROS", Hidden = true, ColumnName = "Process" },
+                                            new DataGridOptions() { Id = "NOME_ETAP", ColumnName = "Process Step" },
+                                            new DataGridOptions() { Id = "PERC_EXEC", ColumnName = "%" },
+                                            new DataGridOptions() { Id = "TMST_EXEC_INIC", ColumnName = "Started in", Type = ColumnType.DateTime},
+                                            new DataGridOptions() { Id = "TMST_EXEC", ColumnName = "Finished on", Type = ColumnType.DateTime }
+                                        }, 
+                                        ajax: "GetProcessView",
+                                        showPaging: false,
+                                        showExport: false,
+                                        showSearch: false
+                                    )
+                                }, @class: "col-xs-12 col-sm-6 col-md-6 col-lg-6", style: "padding: 0px; border-width: 0px;")
+                               
+                            }),
+                            
+                             Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderTextbox("PROC_COMMENT", "Comment", 10, TextboxType.Text, rows: 2, ng_model: "ctl.editItem.PROC_COMMENT", required: true),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 2, size: ButtonSize.md, label: "Inform Closing", ng_click: "ctl.inform()" )
+                            }),
+                            
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtLastUpdates",
+                                        new List<DataGridOptions>() { new DataGridOptions() { Id = "PROC_ID", Hidden = true, isKey = true},
+                                            new DataGridOptions() { Id = "PROC_DT_TRADE", Hidden = true },
+                                            new DataGridOptions() { Id = "PROC_DT_UPDATE", Hidden = true },
+                                            new DataGridOptions() { Id = "PROC_DT_EXECUTION", Hidden = true},
+                                            new DataGridOptions() { Id = "PROC_DT_TRADE", ColumnName = "Inform Date", Sortable = true, Expand = true, Type = ColumnType.DateTime, orderIndex = 1 },
+                                            new DataGridOptions() { Id = "PROC_STATUS", Hidden = true },
+                                            new DataGridOptions() { Id = "STATUS", ColumnName = "Status", Sortable = true },
+                                            new DataGridOptions() { Id = "PROC_COMMENT", ColumnName = "Comment", Sortable = true },
+                                            new DataGridOptions() { Id = "PROC_USER", ColumnName = "User", Sortable = true, HidePhone = true, HideTablet = true },
+                                            new DataGridOptions() { Id = "PROC_DT_UPDATE", ColumnName = "Update Date", Type = ColumnType.DateTime, Sortable = true, HidePhone = true, HideTablet = true, orderIndex = 2 },
+                                            new DataGridOptions() { Id = "PROC_DT_EXECUTION", ColumnName = "Execution Date", Type = ColumnType.DateTime, Sortable = true, HidePhone = true, HideTablet = true, orderIndex = 3 },
+                                            new DataGridOptions() { Id = "PROC_EVENT", ColumnName = "Event", Sortable = true, HidePhone = true, HideTablet = true },
+                                        }, 
+                                        ajax: "GetEODAssistView",
+                                        createdRow: @"if (data.PROC_STATUS == 2) {
+                                                        $(row).addClass('green-background');
+                                                      }
+                                                      else if (data.PROC_STATUS == 3) {
+                                                        $(row).addClass('red-background');
+                                                      }"
+                                    )
+                                })
+                            })
+                        })
+                    }
+                )
+
+                @Html.RenderModal("gridInformModal", "Confirmation", new List<IHtmlString>() {
+                Html.RenderHTML("<p>Are you sure you want to close?</p>")
+                }, new List<IHtmlString>() {
+                                Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Close", ng_click: "ctl.close()"),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/OpsControl/EODAssistController.js?version=@ViewBag.JSVersion"></script>
+}

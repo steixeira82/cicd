@@ -1,0 +1,133 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="PageController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wProcessExecution", "Process Execution", new List<IHtmlString>() {
+                    Html.RenderDataTable("dtProcessExecution", new List<DataGridOptions>() { new DataGridOptions() { Id = "EXEC_ID", ColumnName = "ID", Sortable = true, isKey = true, Order = "desc" },
+                               new DataGridOptions() { Id = "PROCESS_NAME", ColumnName = "Process Name", Sortable = true },
+                               new DataGridOptions() { Id = "EXEC_DT_CREATE", ColumnName = "Exec. DT Create", Sortable = true, Type = ColumnType.DateTime },
+                               new DataGridOptions() { Id = "STATUS", ColumnName = "Status", Sortable = true },
+                               new DataGridOptions() { Id = "USER_LOGIN", ColumnName = "Requested by", Sortable = true }
+                                }, actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.repeatConfirmation", Color = ButtonColor.Warning, Icon = "repeat" },
+                                                                          new DataGridActions() { Ng_click = "ctl.stop", Color = ButtonColor.Danger, Icon = "stop" },
+                                                                          new DataGridActions() { Ng_click = "ctl.detail", Color = ButtonColor.Primary, Icon = "plus" }}
+                                 , ajax: "GetProcessExecutionView")
+                    },
+                         toolbarItens: new List<IHtmlString>() {
+                                  Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.updateProcessExecution()")
+                              }, icon: "table")
+                    @Html.RenderWidget("wProcessExecutionItem", "{{ ctl.processExecutionItemLabel }}", tabItens: new List<IHtmlString>() {
+                    Html.RenderWidgetTab("processExecutionTab", new List<IHtmlString>() {
+                       Html.RenderForm("processExecutionForm", new List<IHtmlString>() {
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderTextbox("EXEC_ID", "ID", gridPart: 2, maxLength:10, ng_model: "ctl.processExecutionItem.EXEC_ID", enable: false),
+                            Html.RenderSelect("PROCESS_ID", SelectType.Single, label: "Process", gridPart: 4, ng_repeat: "vm.view.PROCESS_ID_data", ng_model: "ctl.processExecutionItem.PROCESS_ID", ajax: "GetProcesses", convertToNumber: true, enable: false)
+                        })
+                       })
+                    }, active: true),
+                    Html.RenderWidgetTab("notificationTab", new List<IHtmlString>() {
+                        Html.RenderFieldset(new List<IHtmlString>() {
+                            Html.RenderDataTable("dtNotification", new List<DataGridOptions>() {
+                                new DataGridOptions() { Id = "NOTIFY_ID", ColumnName = "ID", isKey = true },
+                                new DataGridOptions() { Id = "NOTIFY_DT_CREATE", ColumnName = "notification time", Type = ColumnType.DateTime },
+                                new DataGridOptions() { Id = "NOTIFY_TYPE", ColumnName = "Notification type" },
+                                new DataGridOptions() { Id = "NOTIFY_DETAIL", ColumnName = "Notification details" }
+                            }, actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.notificationDetail", Color = ButtonColor.Primary, Icon = "plus" } }
+                        ,  ajax: "GetNotificationsByExecutionId", postData: "EXEC_ID: 0", showExport: false, showPaging: false, showSearch: false)
+                        },
+                        legend: "Notifications")
+                    }),
+                    Html.RenderWidgetTab("fileExecutionTab", new List<IHtmlString>() {
+                        Html.RenderFieldset(new List<IHtmlString>() {
+                            Html.RenderDataTable("dtFileExecution", new List<DataGridOptions>() {
+                                new DataGridOptions() { Id = "FILE_EXEC_ID", ColumnName = "ID", isKey = true },
+                                new DataGridOptions() { Id = "FILES_CNPJ_CLIENT", ColumnName = "CNPJ" },
+                                new DataGridOptions() { Id = "NM_CLIENTE", ColumnName = "Client Name" },
+                                new DataGridOptions() { Id = "FILE_TYPE", ColumnName = "Automation Type" },
+                                new DataGridOptions() { Id = "FILE_EXEC_STATUS", ColumnName = "File Execution Status" }
+                            }, actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.fileExecutionDetail", Color = ButtonColor.Primary, Icon = "plus" } }
+                        , ajax: "GetFileExecutionViewByExecutionId", postData: "EXEC_ID: 0", showExport: false, showPaging: false, showSearch: false)
+                        },
+                        legend: "Notifications")
+                    })
+                    },
+                    toolbarTabSelectorItens: new List<IHtmlString>() {
+                        Html.RenderWidgetTabSelector("Process Execution", "processExecutionTab", "pencil", active: true),
+                        Html.RenderWidgetTabSelector("Notification", "notificationTab", "exclamation-triangle"),
+                        Html.RenderWidgetTabSelector("File Execution", "fileExecutionTab", "files-o")
+                },
+                toolbarItens: new List<IHtmlString>() {
+                                  Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.updateProcessExecutionItem()")
+                              },
+                icon: "pencil", color: "blueLight", ng_show: "ctl.processExecutionItemVisible")
+
+                    @Html.RenderModal("stopProcessExecution", "Stop Process Execution", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want stop this execution?</p>")
+                       }, new List<IHtmlString>() {
+                           Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Stop", ng_click: "ctl.stopProcessExecution()"),
+                           Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+
+                    @Html.RenderModal("modalNotification", "Notification Detail", new List<IHtmlString>() {
+                    Html.RenderForm("notificationForm", new List<IHtmlString>() {
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderTextbox("NOTIFY_ID", "ID", gridPart: 2, maxLength:7, ng_model: "ctl.notificationItem.NOTIFY_ID", enable: false),
+                            Html.RenderTextbox("NOTIFY_DETAIL", "Notification Detail", gridPart: 10, rows: 10, ng_model: "ctl.notificationItem.NOTIFY_DETAIL", enable: false)
+                        })
+                    },
+                    new List<IHtmlString>() {
+                        @Html.RenderButton(ButtonType.Button, ButtonColor.Danger, label: "Close", attributes:"data-dismiss='modal'")
+                    }) }, @class: "no-padding")
+
+                    @Html.RenderModal("reprocessProcess", "Reprocess process", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want reprocess this process?</p>")
+                       }, new List<IHtmlString>() {
+                           Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Reprocess", ng_click: "ctl.reprocessProcess()"),
+                           Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+
+                    @Html.RenderModal("modalFileExecution", "File Execution Detail", new List<IHtmlString>() {
+                    Html.RenderForm("fileExecutionForm", new List<IHtmlString>() {
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderTextbox("FILE_EXEC_ID", "ID", gridPart: 2, maxLength:7, ng_model: "ctl.fileExecutionItem.FILE_EXEC_ID", enable: false),
+                            Html.RenderTextbox("FILE_EXEC_DET", "File Execution Detail", gridPart: 10, rows: 10, ng_model: "ctl.fileExecutionItem.FILE_EXEC_DET", enable: false)
+                        }),
+                        Html.RenderDataTable("dtFileAttach", new List<DataGridOptions>() {
+                                new DataGridOptions() { Id = "FILE_ATTACH_ID", ColumnName = "ID", isKey = true },
+                                new DataGridOptions() { Id = "FILE_NAME", ColumnName = "Name"},
+                                new DataGridOptions() { Id = "FILE_PATH", ColumnName = "Full Path", Hidden = true },
+                                new DataGridOptions() { Id = "FILE_DT_CREATE", ColumnName = "File Creation Time", Hidden = true }
+                            }, actions: new List<DataGridActions>() { new DataGridActions() { href = "/checklist/DownloadFile", Color = ButtonColor.Primary, Icon = "download" } }
+                        , ajax: "GetFileAttachViewByFileExecutionId", postData: "FILE_EXEC_ID: 0", showExport: false, showPaging: true, showSearch: true)
+                    },
+                    new List<IHtmlString>() {
+                        @Html.RenderButton(ButtonType.Button, ButtonColor.Danger, label: "Close", attributes:"data-dismiss='modal'")
+                    }) }, @class: "no-padding")
+
+                    @Html.RenderModal("confirmRepeatProcess", "Repeat process", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want to repeat this execution?</p>")
+                       }, new List<IHtmlString>() {
+                           Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Repeat Execution", ng_click: "ctl.repeat()"),
+                           Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Checklist/ProcessExecutionController.js?version=@ViewBag.JSVersion"></script>
+}

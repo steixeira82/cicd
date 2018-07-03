@@ -1,0 +1,55 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="BrokersController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wBrokers", "Brokers", new List<IHtmlString>() {
+                    Html.RenderDataTable("dtBrokers", new List<DataGridOptions>() { new DataGridOptions() { Id = "BROKER_ID", ColumnName = "ID", Sortable = true, Expand = true, isKey = true },
+                        new DataGridOptions() { Id = "BROKER_NAME", ColumnName = "Name", Sortable = true },
+                        new DataGridOptions() { Id = "BROKER_CGC", ColumnName = "CPF", Sortable = true },
+                        new DataGridOptions() { Id = "BROKER_MICSBR", ColumnName = "MICSBR code", Sortable = true, HidePhone = true, HideTablet = false },
+                        new DataGridOptions() { Id = "BROKER_MICSCE", ColumnName = "MICSCE code", Sortable = false, HidePhone = true, HideTablet = false  },
+                        new DataGridOptions() { Id = "BROKER_EXCHANGE", ColumnName = "EXCHANGE code", Sortable = true, HidePhone = true, HideTablet = true  },
+                        }, actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.modify", Color = ButtonColor.Warning, Icon = "edit" }}
+                        , itemsPerPage: 15, ajax: "GetBrokersView")
+                    }
+                )
+
+                    @Html.RenderModal("gridEditModal", "Edit Broker", new List<IHtmlString>() {
+                    Html.RenderForm("editForm", new List<IHtmlString>() {
+                    Html.RenderRow(new List<IHtmlString>() {
+                        @Html.RenderTextbox("BROKER_ID", "ID", gridPart: 2, maxLength:10, ng_model: "ctl.editItem.BROKER_ID", enable: false),
+                        @Html.RenderTextbox("BROKER_NAME", "Name", gridPart: 6, maxLength: 100, ng_model: "ctl.editItem.BROKER_NAME", required: true, enable: false),
+                        @Html.RenderTextbox("BROKER_CGC", "CPF", gridPart: 4,  maxLength: 15, ng_model: "ctl.editItem.BROKER_CGC", required: false, enable: false)
+                    }),
+                    Html.RenderRow(new List<IHtmlString>() {
+                        @Html.RenderTextbox("BROKER_MICSBR", "MICSBR code", gridPart: 4, maxLength: 100, ng_model: "ctl.editItem.BROKER_MICSBR", required: true),
+                        @Html.RenderTextbox("BROKER_MICSCE", "MICSCE code", gridPart: 4, maxLength: 100, ng_model: "ctl.editItem.BROKER_MICSCE", required: true),
+                        @Html.RenderTextbox("BROKER_EXCHANGE", "EXCHANGE code", gridPart: 4, maxLength: 100, ng_model: "ctl.editItem.BROKER_EXCHANGE", required: true)
+                    })
+                    },
+                    new List<IHtmlString>() {
+                        @Html.RenderButton(ButtonType.Submit, ButtonColor.Primary, label: "Save", ng_click: "ctl.save()"),
+                        @Html.RenderButton(ButtonType.Button, ButtonColor.Danger, label: "Cancel", attributes:"data-dismiss='modal'") })
+                }, @class: "no-padding")
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Register/BrokersController.js?version=@ViewBag.JSVersion"></script>
+}

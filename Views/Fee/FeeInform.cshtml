@@ -1,0 +1,63 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="PageController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wFI", "Fee Report",
+                        new List<IHtmlString>() {
+                            Html.RenderForm("filterForm", new List<IHtmlString>() {
+                                Html.RenderRow(new List<IHtmlString>() {
+                                    Html.RenderDatetimePicker("DT_TRADE", "Trade Date", gridPart: 2, ng_model: "ctl.filter.DT_TRADE", allowTime: false, ng_change: "ctl.update()" ),
+                                    Html.RenderDatetimePicker("DT_SETTLE", "Settlement Date", gridPart: 2, ng_model: "ctl.filter.DT_SETTLE", allowTime: false, ng_change: "ctl.update()" ),
+                                    Html.RenderSelect("CD_CLIENTE", SelectType.Single, label: "Client", gridPart: 2, ng_repeat: "ctl.view.CD_CLIENTE_data", ng_model: "ctl.filter.CD_CLIENTE", ajax: "GetClientIds", convertToNumber: true,  ng_change: "ctl.update()" ),
+                                    Html.RenderSelect("TYPE", SelectType.Single, label: "Type", gridPart: 2, options: new Dictionary<string,string>() { {"T+1", "T+1"}, {"T+3", "T+3"} } , ng_model: "ctl.filter.TYPE", ng_change: "ctl.update()" ),
+                                    Html.RenderButton(ButtonType.Button, ButtonColor.Primary, id: "btnSearch", gridPart: 1, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" ),
+                                    Html.RenderButton(ButtonType.Button, ButtonColor.Warning, gridPart: 1, size: ButtonSize.md, label: "Export Excel", ng_click: "ctl.exportExcel()" ),
+                                    Html.RenderButton(ButtonType.Button, ButtonColor.Warning, gridPart: 1, size: ButtonSize.md, label: "Export Pdf", ng_click: "ctl.exportPdf()" ),
+                                    Html.RenderHTML("<iframe id='my_iframe' style='display:none;'></iframe>")
+                                }),
+                                Html.RenderRow(new List<IHtmlString>() {
+                                    Html.RenderFieldset(new List<IHtmlString>() {
+                                        Html.RenderDataTable("dtFeeInform",
+                                            new List<DataGridOptions>() {
+                                                new DataGridOptions() { Id = "DT_NEGOCIO", ColumnName = "Trade Date", Sortable = true, Type = ColumnType.Date },
+                                                new DataGridOptions() { Id = "COD_PAR_ORIG", ColumnName = "Broker", Sortable = true, NoWrap = true },
+                                                new DataGridOptions() { Id = "COD_IDT_CON_PAR_ORIG", ColumnName = "GiveUp Link", Sortable = true },
+                                                new DataGridOptions() { Id = "CD_CLIENTE", ColumnName = "Client", Sortable = true, NoWrap = true },
+                                                new DataGridOptions() { Id = "CD_BOLSAMOV", ColumnName = "Exchange", Sortable = true },
+                                                new DataGridOptions() { Id = "TYPE", ColumnName = "Type", Sortable = true },
+                                                new DataGridOptions() { Id = "DT_SETTLE", ColumnName = "Settlement Date", Sortable = true, Type = ColumnType.Date },
+                                                new DataGridOptions() { Id = "VL_TOTNEG", ColumnName = "Volumn", Sortable = true, Type = ColumnType.Decimal2 },
+                                                new DataGridOptions() { Id = "VAL_CORT_EXEC", ColumnName = "Broker Fee", Sortable = true, Type = ColumnType.Decimal2 }
+                                            },
+                                            postData: "DT_SETTLE: '" + DateTime.Now.ToString("dd/MM/yyyy") + "'",
+                                            itemsPerPage: 10,
+                                            ajax: "GetFeeInformView",
+                                            columnFilter: true
+                                        )
+                                    },
+                                    legend: "Fees")
+                                })
+                            })
+                        }
+                    )
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Fee/FeeInformController.js?version=@ViewBag.JSVersion"></script>
+}

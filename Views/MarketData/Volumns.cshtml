@@ -1,0 +1,69 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="VolumnsController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget(
+                    "wVolumns",
+                    "Volumns",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("informForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("VOLUMN_DATE_START", "Start Date", gridPart: 3, required: true, ng_model: "ctl.filter.VOLUMN_DATE_START", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderDatetimePicker("VOLUMN_DATE_END", "End Date", gridPart: 3, required: true, ng_model: "ctl.filter.VOLUMN_DATE_END", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderSelect("CD_CLIENTE", SelectType.Single, label: "Client", gridPart: 3, ng_repeat: "vm.view.CD_CLIENTE_data", ng_model: "ctl.filter.CD_CLIENTE", ajax: "GetClientIds", convertToNumber: true, required: false, ng_change: "ctl.update()"),
+                                Html.RenderSelect("BROKER_ID", SelectType.Single, label: "Broker", gridPart: 3, ng_repeat: "vm.view.BROKER_ID_data", ng_model: "ctl.filter.BROKER_ID", ajax: "GetBrokersIds", convertToNumber: true, required: false, ng_change: "ctl.update()"),
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderSelect("FEE_MARKET_ID", SelectType.Single, label: "Market", gridPart: 3, ng_repeat: "vm.view.FEE_MARKET_ID_data", ng_model: "ctl.filter.FEE_MARKET_ID", ajax: "GetMarkets", convertToNumber: true, required: false, ng_change: "ctl.update()"),
+                                Html.RenderCheckbox("VOLUMN_CONSOLIDATES_CHECK", gridPart: 3, label: "Consolidate date", ng_model: "ctl.filter.VOLUMN_CONSOLIDATES_CHECK", ng_change: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, id: "idSearch", gridPart: 2, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Warning, gridPart: 2, size: ButtonSize.md, label: "Export Excel", ng_click: "ctl.exportExcel()"),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Warning, gridPart: 2, size: ButtonSize.md, label: "Export Pdf", ng_click: "ctl.exportPdf()"),
+                                Html.RenderHTML("<iframe id='my_iframe' style='display:none;'></iframe>")
+                            })
+                        }),
+                        Html.RenderDataTable("dtVolumn",
+                                new List<DataGridOptions>() {
+                                    new DataGridOptions() { Id = "CLIENT_NAME", ColumnName = "Client", Sortable = true},
+                                    new DataGridOptions() { Id = "BROKER_NAME", ColumnName = "Broker", Sortable = true},
+                                    new DataGridOptions() { Id = "FEE_MARKET_NAME", ColumnName = "Market Type", Sortable = true},
+                                    new DataGridOptions() { Id = "VOLUMN_VALUE", ColumnName = "Volumn", Sortable = true, Type = ColumnType.Currency},
+                                    new DataGridOptions() { Id = "VOLUMN_DATE", ColumnName = "Date", Sortable = true, Type = ColumnType.Date }
+                                },
+                                itemsPerPage: 10,
+                                autoWidth: true,
+                                ajax: "GetVolumns",
+                                columnFilter: false,
+                                postData: "CD_CLIENTE: null, BROKER_ID: null, FEE_MARKET_ID: null, VOLUMN_DATE_START: \"" + new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToString("dd/MM/yyyy") + "\", VOLUMN_DATE_END: null, VOLUMN_CONSOLIDATES_CHECK: false"
+                        ),
+                    }
+                            ,
+                            toolbarItens: new List<IHtmlString>() {
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                            }
+                )
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/MarketData/VolumnsController.js?version=@ViewBag.JSVersion"></script>
+
+}

@@ -1,0 +1,61 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<div id="content" ng-app="App" ng-controller="PageController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wFinanceResub", "Finance Resubmit Control", new List<IHtmlString>() {
+                    Html.RenderDataTable("dtProcesses", new List<DataGridOptions>() { new DataGridOptions() { Id = "FIN_RESUB_ID", Hidden = true, HidePhone = true, HideTablet = true, isKey = true },
+                    new DataGridOptions() { Id = "FIN_RESUB_NAME", ColumnName = "Process Name", Expand = true, Sortable = false, orderIndex = 0 },
+                    new DataGridOptions() { Id = "FIN_RESUB_TIME_EXEC", ColumnName = "Last DT Request", Sortable = false, Type = ColumnType.DateTime},
+                    new DataGridOptions() { Id = "FIN_RESUB_DT", ColumnName = "Last Trade Date Executed", Sortable = false, HidePhone = true, Type = ColumnType.Date },
+                    new DataGridOptions() { Id = "FIN_RESUB_USER", ColumnName = "User", Sortable = false, HidePhone = true },
+                        },
+                        legend: new List<DataGridLegend>() {
+                            new DataGridLegend() { Css = "red-background", Description = "Error" },
+                            new DataGridLegend() { Css = "green-background", Description = "Success" },
+                        },
+                        createdRow: @"if (data.FIN_RESUB_STATUS == 1) {
+                                        $(row).addClass('green-background');
+                                        }
+                                        else if (data.FIN_RESUB_STATUS == 2) {
+                                        $(row).addClass('red-background');
+                                        }",
+                        actions: new List<DataGridActions>() {
+                                                                  new DataGridActions() { Ng_click = "ctl.confirmExecuteResub", Color = ButtonColor.Default, Icon = "play" },
+
+                }, ajax: "GetFinanceResubView") }
+                )
+
+
+                    @Html.RenderModal("confirmExecFinancResubProcess", "Execute process", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want to execute this process? </p>"),
+                    Html.RenderForm("confirmFinanceResubForm", new List<IHtmlString>() {
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderDatetimePicker("FIN_RESUB_DT", "Trade Date", gridPart: 6, required: true, ng_model: "ctl.executeProcessItem.FIN_RESUB_DT", allowTime: false),
+                        })
+                    })
+                    }, new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Execute", ng_click: "ctl.executeProcess()"),
+                    }
+                )
+
+
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/OpsControl/FinanceResubmitController.js?version=@ViewBag.JSVersion"></script>
+}

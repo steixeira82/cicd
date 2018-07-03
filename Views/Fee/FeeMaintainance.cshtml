@@ -1,0 +1,97 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="FeeMaintainanceController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget(
+                    "wResubmit",
+                    "Fee Maintainance",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("informForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("DT_DATMOV", "Mov. Date", gridPart: 2, required: true, ng_model: "ctl.filter.DT_DATMOV", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderDatetimePicker("DT_NEGOCIO", "Trade Date", gridPart: 2, required: true, ng_model: "ctl.filter.DT_NEGOCIO", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderSelect("CD_BROKER", SelectType.Single, label: "Broker", gridPart: 2, ng_repeat: "ctl.view.CD_BROKER_data", ng_model: "ctl.filter.CD_BROKER", ajax: "GetBrokersIds", convertToNumber: true, required: false, ng_change: "ctl.update()"),
+                                Html.RenderTextbox("VAL_CORT_EXEC_SUM", "Sum", gridPart: 2, maxLength: 30, ng_model: "ctl.VAL_CORT_EXEC_SUM", required: false, decimalScale: 2, positiveOnly: true, enable: false),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, id: "idUpdate", gridPart: 2, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" )
+                            })
+                        }),
+                        Html.RenderDataTable("dtTrades",
+                                new List<DataGridOptions>() {
+                                    new DataGridOptions() { Id = "ROW_ID", ColumnName = "ROW_ID", Sortable = true, isKey = true, Hidden = true, keytype = KeyType.String },
+                                    //new DataGridOptions() { Id = "DT_DATMOV", ColumnName = "Mov. Date", Sortable = true, Type = ColumnType.Date },
+                                    new DataGridOptions() { Id = "DT_NEGOCIO", ColumnName = "Trade Date", Sortable = true, Type = ColumnType.Date },
+                                    new DataGridOptions() { Id = "CD_CLIENTE", ColumnName = "Client", Sortable = true},
+                                    new DataGridOptions() { Id = "NM_CLIENTE", ColumnName = "Client Name", Sortable = true, NoWrap = true },
+                                    new DataGridOptions() { Id = "CD_NEGOCIO", ColumnName = "Symbol", Sortable = true },
+                                    new DataGridOptions() { Id = "NR_NEGOCIO", ColumnName = "Trade Number", Sortable = true},
+                                    new DataGridOptions() { Id = "CD_NATOPE", ColumnName = "Side", Sortable = true },
+                                    new DataGridOptions() { Id = "QT_QTDESP", ColumnName = "Qty", Sortable = true },
+                                    new DataGridOptions() { Id = "VL_NEGOCIO", ColumnName = "Price", Sortable = true, Type = ColumnType.Decimal2 },
+                                    new DataGridOptions() { Id = "VL_TOTNEG", ColumnName = "Volumn", Sortable = true },
+                                    new DataGridOptions() { Id = "Exercise_Price", ColumnName = "Exercise Price", Sortable = true },
+                                    new DataGridOptions() { Id = "VAL_CORT_EXEC", ColumnName = "Broker Fee", Sortable = true, isKey = true, Type = ColumnType.Decimal2 },
+                                    new DataGridOptions() { Id = "COD_PAR_NEG", ColumnName = "Broker", Sortable = true },
+                                    new DataGridOptions() { Id = "COD_IDT_CON_PAR_ORIG", ColumnName = "GiveUp Link", Sortable = true },
+                                    new DataGridOptions() { Id = "TIPO_MERC", ColumnName = "Market Type", Sortable = true },
+                                    new DataGridOptions() { Id = "EXPIRE_DATE", ColumnName = "Expire Date", Sortable = true, Type = ColumnType.Date },
+                                    new DataGridOptions() { Id = "ISIN", ColumnName = "ISIN", Sortable = true },
+                                },
+                                actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.modify", Color = ButtonColor.Warning, Icon = "edit" } },
+                                showPaging: true,
+                                itemsPerPage: 10,
+                                autoWidth: true,
+                                ajax: "GetTradesMaintainance",
+                                postData: "DT_DATMOV: moment().format('DD/MM/YYYY'), DT_NEGOCIO: moment().format('DD/MM/YYYY'), STATUS: ''",
+                                serverSide: true,
+                                columnFilter: true
+                        )
+                    },
+                    toolbarItens: new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                    },
+                    footerItems: new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Danger, id: "idConfirmRecalc", gridPart: 2, size: ButtonSize.md, label: "Recalculate", ng_click: "ctl.confirmRecalc()", loading: true )
+                    }
+                )
+                    @Html.RenderModal("gridEditFee", "Edit Fee", new List<IHtmlString>() {
+                    Html.RenderForm("editForm", new List<IHtmlString>() {
+                    Html.RenderRow(new List<IHtmlString>() {
+                        Html.RenderTextbox("ROW_ID", "ROW_ID", gridPart: 4, maxLength: 30, ng_model: "ctl.editItem.ROW_ID", required: false, enable: false),
+                        Html.RenderTextbox("VAL_CORT_EXEC", "Broker Fee", gridPart: 4, maxLength: 30, ng_model: "ctl.editItem.VAL_CORT_EXEC", required: true, decimalScale: 2, positiveOnly: true, ngFocus: "ctl.focus($event)")
+                    }),
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Submit, ButtonColor.Primary, label: "Save", ng_click: "ctl.save()"),
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Danger, label: "Cancel", attributes:"data-dismiss='modal'") })
+                    }, @class: "no-padding")
+
+                    @Html.RenderModal("confirmRecalc", "Confirm Recalculate", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want to recalculate fees?</p>")
+                       }, new List<IHtmlString>() {
+                           Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, id: "idRecalc", label: "Recalculate", ng_click: "ctl.recalculate()"),
+                           Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Fee/FeeMaintainanceController.js?version=@ViewBag.JSVersion"></script>
+
+}

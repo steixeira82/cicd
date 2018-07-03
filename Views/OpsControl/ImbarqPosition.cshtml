@@ -1,0 +1,93 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="ImbarqPositionController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                @Html.RenderWidget(
+                    "wEquities",
+                    "Position",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("informForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("IMBARQ_TRADE_DATE", "Trade Date", gridPart: 2, required: true, ng_model: "ctl.filter.IMBARQ_TRADE_DATE", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderDatetimePicker("IMBARQ_SETTEL_DATE", "Settlement Date", gridPart: 2, required: true, ng_model: "ctl.filter.IMBARQ_SETTEL_DATE", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderSelect("IMBARQ_VALID", SelectType.Single, label: "Status", gridPart: 2, required: true, options: new Dictionary<string,string>() { {"1", "Processed"}, {"2", "Not Processed"} } , ng_model: "ctl.filter.IMBARQ_VALID", convertToNumber: true, ng_change: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 2, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Default, gridPart: 2, size: ButtonSize.md, label: "Export Excel", ng_click: "ctl.exportExcel()" ),
+                                Html.RenderHTML("<iframe id='my_iframe' style='display:none;'></iframe>")
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtEquities",
+                                        new List<DataGridOptions>() {
+                                            new DataGridOptions() { Id = "IMBARQ_ID", ColumnName = "ID", Sortable = true},
+                                            //new DataGridOptions() { Id = "IMBARQ_REG", ColumnName = "REG", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_REQUESTER", ColumnName = "Requester", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_CLIENT_REQUESTER", ColumnName = "Client", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_REQUESTED", ColumnName = "Requested", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_CLIENT_REQUESTED", ColumnName = "Client Requested", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_CUSTODIAN", ColumnName = "Custodian", Sortable = true},
+                                            //new DataGridOptions() { Id = "IMBARQ_INVESTOR_CUSTODIAN", ColumnName = "INVESTOR_CUSTODIAN", Sortable = true},
+                                            //new DataGridOptions() { Id = "IMBARQ_INSTRUMENT", ColumnName = "INSTRUMENT", Sortable = true},
+                                            //new DataGridOptions() { Id = "IMBARQ_INSTRUMENT_ID", ColumnName = "INSTRUMENT_ID", Sortable = true},
+                                            //new DataGridOptions() { Id = "IMBARQ_EXCHANGE_CODE", ColumnName = "EXCHANGE_CODE", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_ISIN_CODE", ColumnName = "Isin", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_TICKER_SYMBOL", ColumnName = "Symbol", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_DISTRIBUTION", ColumnName = "Distribution", Sortable = true},
+                                            //new DataGridOptions() { Id = "IMBARQ_MARKET", ColumnName = "MARKET", Sortable = true},
+                                            //new DataGridOptions() { Id = "IMBARQ_CURRENT_FACTO", ColumnName = "CURRENT_FACTO", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_TRADE_DATE", ColumnName = "Trade Date", Sortable = true, NoWrap = true },
+                                            new DataGridOptions() { Id = "IMBARQ_SETTEL_DATE", ColumnName = "Settel Date", Sortable = true, NoWrap = true },
+                                            new DataGridOptions() { Id = "IMBARQ_SUB_ACCOUNT", ColumnName = "Sub Account", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_LONG_QUANTITY", ColumnName = "Long Qty", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_SHORT_QUANTITY", ColumnName = "Short Qty", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_LONG_GROSS_AMOUNT", ColumnName = "Long Gross Amount", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_AVG_LONG_PRICE", ColumnName = "Avg Long Price", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_SHORT_GROSS_AMOUNT", ColumnName = "Short Gross Amount", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_AVG_SHORT_PRICE", ColumnName = "Avg Short Price", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_COVERED_SHORT_QTY", ColumnName = "Covered Short Qty", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_UNCOVERD_SHORT_QTY", ColumnName = "Uncoverd Short Qty", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_RESERVE", ColumnName = "Reserve", Sortable = true},
+                                            new DataGridOptions() { Id = "IMBARQ_LINE", ColumnName = "Line", Sortable = true, cropSize = 30, NoWrap = true},
+                                            new DataGridOptions() { Id = "IMBARQ_FILE_NAME", ColumnName = "File Name", Sortable = true, cropSize = 30, NoWrap = true },
+                                            //new DataGridOptions() { Id = "IMBARQ_VALID", ColumnName = "VALID", Sortable = true},
+                                        },
+                                        showPaging: true,
+                                        itemsPerPage: 10,
+                                        autoWidth: true,
+                                        ajax: "GetImbarqPosition",
+                                        postData: "IMBARQ_TRADE_DATE: moment().format('DD/MM/YYYY'), IMBARQ_SETTEL_DATE:  moment().format('DD/MM/YYYY'), STATUS: ''",
+                                        serverSide: true,
+                                        scrollX: true,
+                                        columnFilter: true,
+                                        showExport: true
+                                    )
+                              })
+                          })
+                        })
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                    }
+                )
+
+            </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/OpsControl/ImbarqPositionController.js?version=@ViewBag.JSVersion"></script>
+
+}

@@ -1,0 +1,70 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="PricesEquitiesController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget(
+                    "wPricesEquities",
+                    "Equities Price",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("SearchForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() 
+                            {
+                                Html.RenderDatetimePicker("DATE", "Processing Date", gridPart: 4, ng_model: "ctl.filter.DATE", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderSelect("STATUS", SelectType.Single, label: "Status", gridPart: 4, options: new Dictionary<string, string>() { {"1", "Valid"}, {"2", "Invalid"} }, ng_model:"ctl.filter.STATUS", ng_change: "ctl.update()" ),
+                                Html.RenderSelect("PROCESSEDFLAG", SelectType.Single, label: "Flag", gridPart: 4, options: new Dictionary<string, string>() { {"1", "Normal"}, {"3", "Processed"} }, ng_model:"ctl.filter.PROCESSEDFLAG", ng_change: "ctl.update()" )
+                            })
+                        }),
+                        
+                        Html.RenderDataTable("dtProcesEquities",
+                                new List<DataGridOptions>() {
+                                    new DataGridOptions() { Id = "IDPRICE", ColumnName = "ID", Sortable = true},
+                                    new DataGridOptions() { Id = "SYMBOL", ColumnName = "Symbol", Sortable = true},
+                                    new DataGridOptions() { Id = "OPTIONTYPE", ColumnName = "Type", Sortable = true},
+                                    new DataGridOptions() { Id = "EXPIRATIONDATE", ColumnName = "Expiration Date", Sortable = false},
+                                    new DataGridOptions() { Id = "EXERCISEPRICE", ColumnName = "Exercise Price", Sortable = false, Type = ColumnType.Currency},
+                                    new DataGridOptions() { Id = "PRICE", ColumnName = "Price", Sortable = false, Type = ColumnType.Currency},
+                                    new DataGridOptions() { Id = "SYMBOL_FULL", ColumnName = "Symbol Full", Sortable = false},
+                                    new DataGridOptions() { Id = "DTUPDATE", ColumnName = "Update Date", Sortable = true, Type = ColumnType.DateTime},
+                                    new DataGridOptions() { Id = "JMS_MESSAGEID", ColumnName = "Message", Sortable = false},
+                                    new DataGridOptions() { Id = "STATUS", ColumnName = "Message", Sortable = false, Hidden = true },
+                                    new DataGridOptions() { Id = "PROCESSED_FLAG", ColumnName = "Message", Sortable = false, Hidden = true }
+                                },
+                                itemsPerPage: 10,
+                                autoWidth: true,
+                                ajax: "GetEquitiesPrice",
+                                columnFilter: true,
+                                showExport: false,
+                                serverSide: true,
+                                legend: new List<DataGridLegend>() {new DataGridLegend() { Css = "green-background", Description = "Processed" }},
+                                createdRow: @"if (data.PROCESSED_FLAG == 3) {$(row).addClass('green-background');}"                             
+                        ),
+                    },
+                    toolbarItens: new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                    }
+                )
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/MarketData/PricesEquitiesController.js?version=@ViewBag.JSVersion"></script>
+
+}

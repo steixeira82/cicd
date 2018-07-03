@@ -1,0 +1,62 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="PageController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wCSM", "Manual CSM",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("informForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderSelect("MARKET_ID", SelectType.Single, label: "Market", gridPart: 2, required: true, ng_repeat: "vm.view.MARKET_ID_data", ng_model: "ctl.editItem.MARKET_ID", ajax: "GetMarkets", initialized: true, convertToNumber: true ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Danger, gridPart: 3, size: ButtonSize.md, label: "Inform Closing", ng_click: "ctl.inform()" )
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtLastUpdates",
+                                        new List<DataGridOptions>() {
+                                            new DataGridOptions() { Id = "CSM_DATE", Hidden = true },
+                                            new DataGridOptions() { Id = "CSM_DATE_BATCH", Hidden = true },
+                                            new DataGridOptions() { Id = "CSM_DATE", ColumnName = "Inform Date", Sortable = true, CreatedCell = @"if (rowData.CSM_STATUS == 2) { $(td).addClass('green-background'); } ", orderIndex = 0 },
+                                            new DataGridOptions() { Id = "CSM_STATUS", Hidden = true},
+                                            new DataGridOptions() { Id = "MARKET_NAME", ColumnName = "Market", Sortable = true, Expand = true },
+                                            new DataGridOptions() { Id = "CSM_USER", ColumnName = "User", Sortable = true, HidePhone = true, HideTablet = true },
+                                            new DataGridOptions() { Id = "CSM_DATE_BATCH", ColumnName = "Batch Date", Sortable = true, HidePhone = true, HideTablet = true, orderIndex = 1}
+                                        },
+                                        ajax: "GetLastUpdatesView",
+                                        legend: new List<DataGridLegend>() {
+                                            new DataGridLegend() { Css = "green-background", Description = "Message Sent to MICS" }
+                                        }
+                                    )
+                                },
+                                legend: "Last Updates")
+                            })
+                        })
+                    }
+                )
+
+                    @Html.RenderModal("gridInformModal", "Confirmation", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want to close?</p>")
+                }, new List<IHtmlString>() {
+                                Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Close", ng_click: "ctl.close()"),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/OpsControl/CsmOpsController.js?version=@ViewBag.JSVersion"></script>
+}

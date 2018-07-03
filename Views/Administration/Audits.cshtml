@@ -1,0 +1,62 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="PageController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wRules", "Audits", new List<IHtmlString>() {
+                    Html.RenderDataTable("dtAuthorization", new List<DataGridOptions>() {
+                        new DataGridOptions() { Id = "AUDIT_ID", ColumnName = "ID", Sortable = true, Expand = true, isKey = true, Order = "desc" },
+                        new DataGridOptions() { Id = "AUDIT_DATE", ColumnName = "Date", Sortable = true },
+                        new DataGridOptions() { Id = "AUDIT_TYPE", ColumnName = "Type", Sortable = true, HidePhone = true, HideTablet = false },
+                        new DataGridOptions() { Id = "AUDIT_USER", ColumnName = "User", Sortable = false, HidePhone = true, HideTablet = false  },
+                        new DataGridOptions() { Id = "AUDIT_DETAILS", ColumnName = "Details", HidePhone = true, HideTablet = false },
+                    },
+                    actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.details", Color = ButtonColor.Warning, Icon = "edit" } },
+                    itemsPerPage: 15,
+                    serverSide: true,
+                    ajax: "GetAuditsView")
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                    }
+
+                )
+
+                    @Html.RenderModal("gridEditModal", "Edit Authorization", new List<IHtmlString>() {
+                    Html.RenderForm("editForm", new List<IHtmlString>() {
+                        Html.RenderRow(new List<IHtmlString>() {
+                            @Html.RenderTextbox("AUDIT_ID", "ID", gridPart: 2, maxLength:10, ng_model: "ctl.editItem.AUDIT_ID", enable: false),
+                            @Html.RenderDatetimePicker("AUDIT_DATE", "Date", gridPart: 10, ng_model: "ctl.editItem.AUDIT_DATE", enable: false)
+                        }),
+                        Html.RenderRow(new List<IHtmlString>() {
+                            @Html.RenderTextbox("AUDIT_TYPE", "Type", gridPart: 6, maxLength: 100, ng_model: "ctl.editItem.AUDIT_TYPE", enable: false),
+                            @Html.RenderTextbox("AUDIT_USER", "User", gridPart:6, maxLength: 100, ng_model: "ctl.editItem.AUDIT_USER", enable: false)
+                        }),
+                        Html.RenderTextbox("AUDIT_DETAILS", "Details", rows: 5, ng_model: "ctl.editItem.AUDIT_DETAILS", enable: false)
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Danger, label: "Close", attributes:"data-dismiss='modal'")
+                    })
+                    }, @class: "no-padding")
+
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Administration/AuditsController.js?version=@ViewBag.JSVersion"></script>
+}

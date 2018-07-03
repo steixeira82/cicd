@@ -1,0 +1,112 @@
+﻿@{
+    ViewBag.Title = "Jobs";
+    ViewBag.scripts = new List<string>();
+    ViewBag.bundles = new List<string>();
+    ViewBag.directives = new List<string>();
+    ViewBag.modules = new List<string>();
+}
+<div id="content" ng-app="App" ng-controller="JobsController as ctl">
+    <div ng-controller="viewController as vm">
+        <!-- widget grid -->
+        <section id="widget-grid" class="">
+            <!-- row -->
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wJobRunDetails", "Job Scheduler",
+                        new List<IHtmlString>() {
+                            Html.RenderForm("jobForm", new List<IHtmlString>() {
+                                Html.RenderRow(new List<IHtmlString>() {
+                                    Html.RenderFieldset(new List<IHtmlString>() {
+                                          Html.RenderDataTable("dtJobs", new List<DataGridOptions>() {
+                                               new DataGridOptions() { Id = "JOB_NAME", ColumnName = "Name", isKey = true, keytype = KeyType.String },
+                                               new DataGridOptions() { Id = "JOB_ACTION", ColumnName = "Action" },
+                                               new DataGridOptions() { Id = "START_DATE", ColumnName = "Start Date", Type = ColumnType.DateTime },
+                                               new DataGridOptions() { Id = "END_DATE", ColumnName = "End Date", Type = ColumnType.DateTime },
+                                               new DataGridOptions() { Id = "REPEAT_INTERVAL", ColumnName = "Interval" },
+                                               new DataGridOptions() { Id = "LAST_START_DATE", ColumnName = "Last Start", Type = ColumnType.DateTime },
+                                               new DataGridOptions() { Id = "NEXT_RUN_DATE", ColumnName = "Next Run", Type = ColumnType.DateTime },
+                                               new DataGridOptions() { Id = "STATE", ColumnName = "State" },
+                                               new DataGridOptions() { Id = "COMMENTS", ColumnName = "Comments" }},
+                                               actions: new List<DataGridActions>() {
+                                                    new DataGridActions() { Ng_click = "ctl.play", Color = ButtonColor.Default, Icon = "play", Title = "Play" },
+                                                    new DataGridActions() { Ng_click = "ctl.stop", Color = ButtonColor.Default, Icon = "stop", Title = "Stop" },
+                                                    new DataGridActions() { Ng_click = "ctl.modify", Color = ButtonColor.Warning, Icon = "edit", Title = "Edit"  },
+                                                    new DataGridActions() { Ng_click = "ctl.remove", Color = ButtonColor.Danger, Icon = "trash-o", Title = "Delete"  },
+                                                    new DataGridActions() { Ng_click = "ctl.detail", Color = ButtonColor.Warning, Icon = "plus", Title = "Details"  }}
+                                                 , ajax: "GetSchedulerJobs")
+                                    },
+                                    legend: "Jobs")
+                                }),
+                                Html.RenderRow(new List<IHtmlString>() {
+                                    Html.RenderFieldset(new List<IHtmlString>() {
+                                            Html.RenderDataTable("dtJobRunDetails",
+                                            new List<DataGridOptions>() {
+                                                new DataGridOptions() { Id = "JOB_NAME", ColumnName = "Name", Hidden = true },
+                                                new DataGridOptions() { Id = "LOG_ID", ColumnName = "ID", Sortable = true, Type = ColumnType.Decimal },
+                                                new DataGridOptions() { Id = "STATUS", ColumnName = "Status" },
+                                                new DataGridOptions() { Id = "LOG_DATE", ColumnName = "Log Date", Type = ColumnType.DateTime,  Sortable = true },
+                                                new DataGridOptions() { Id = "ACTUAL_START_DATE", ColumnName = "Start Date", Type = ColumnType.DateTime, Sortable = true },
+                                                new DataGridOptions() { Id = "RUN_DURATION", ColumnName = "Run Duration" },
+                                                new DataGridOptions() { Id = "ADDITIONAL_INFO", ColumnName = "Info", Sortable = true },
+                                                new DataGridOptions() { Id = "ERRORS", ColumnName = "Errors" }
+                                            },
+                                            ajax: "GetSchedulerJobDetails",
+                                            columnFilter: false,
+                                            showExport: false,
+                                            showSearch: false
+                                        )
+                                    },
+                                    legend: "Jobs Run Details")
+                                })
+                            })
+                        }, new List<IHtmlString>() { Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "plus", label: "Add", ng_click: "ctl.new()") }
+                    )
+                    @Html.RenderModal("gridEditModal", "Save Job", new List<IHtmlString>() {
+                    Html.RenderForm("editForm", new List<IHtmlString>() {
+                        Html.RenderRow(new List<IHtmlString>() {
+                            @Html.RenderTextbox("JOB_NAME_EDIT", "Name", gridPart: 4, maxLength: 100, ng_model: "ctl.editItem.JOB_NAME", required: true, valGroup: "group"),
+                            @Html.RenderTextbox("JOB_ACTION_EDIT", "Action", gridPart: 4, maxLength: 100, ng_model: "ctl.editItem.JOB_ACTION", required: true, valGroup: "group"),
+                            @Html.RenderSelect("FREQUENCY_EDIT", SelectType.Single, label: "Frequency", gridPart: 4, options: new Dictionary<string, string>() { {"YEARLY", "YEARLY"}, {"MONTHLY", "MONTHLY"}, {"WEEKLY", "WEEKLY"}, {"DAILY", "DAILY"}, {"HOURLY", "HOURLY"}, {"MINUTELY", "MINUTELY"}, {"SECONDLY", "SECONDLY"}  }, ng_model: "ctl.editItem.FREQUENCY", required: true)
+                        }),
+                        Html.RenderRow(new List<IHtmlString>() {
+                            @Html.RenderDatetimePicker("START_DATE_EDIT", "Start Date", gridPart: 4, required: false, ng_model: "ctl.editItem.START_DATE", allowTime: true, ng_change: "ctl.update()" , valGroup: "group"),
+                            @Html.RenderDatetimePicker("END_DATE_EDIT", "End Date", gridPart: 4, required: false, ng_model: "ctl.editItem.END_DATE", allowTime: true, ng_change: "ctl.update()" , valGroup: "group"),
+                            @Html.RenderTextbox("INTERVAL_EDIT", "Interval", gridPart: 4, maxLength: 100, ng_model: "ctl.editItem.INTERVAL", required: false, type: TextboxType.Number , valGroup: "group")
+                        }),
+                        Html.RenderRow(new List<IHtmlString>() {
+                            @Html.RenderSelect("WEEK_DAY_EDIT", SelectType.Single, label: "Week Day", gridPart: 4, options: new Dictionary<string, string>() { {"SUN", "SUNDAY"}, {"MON", "MONDAY"}, {"TUE", "TUESDAY"}, {"WED", "WEDNESDAY"}, {"THU", "THURSDAY"}, {"FRI", "FRIDAY"}, {"SAT", "SATURDAY"}  }, ng_model: "ctl.editItem.WEEK_DAY", required: false),
+                            @Html.RenderSelect("HOUR_EDIT", SelectType.Single, label: "Hour", gridPart: 4, options: new Dictionary<string, string>() { {"0", "00"}, {"1", "01"}, {"2", "02"}, {"3", "03"}, {"4", "04"}, {"5", "05"}, {"6", "06"}, {"7", "07"}, {"8", "08"}, {"9", "09"}, {"10", "10"}, {"11", "11"}, {"12", "12"}, {"13", "13"}, {"14", "14"}, {"15", "15"}, {"16", "16"}, {"17", "17"}, {"18", "18"}, {"19", "19"}, {"20", "20"}, {"21", "21"}, {"22", "22"}, {"23", "23"} }, ng_model: "ctl.editItem.HOUR", required: false),
+                            @Html.RenderSelect("MINUTE_EDIT", SelectType.Single, label: "Minute", gridPart: 4, options: new Dictionary<string, string>() { {"0", "00"}, {"1", "01"}, {"2", "02"}, {"3", "03"}, {"4", "04"}, {"5", "05"}, {"6", "06"}, {"7", "07"}, {"8", "08"}, {"9", "09"}, {"10", "10"}, {"11", "11"}, {"12", "12"}, {"13", "13"}, {"14", "14"}, {"15", "15"}, {"16", "16"}, {"17", "17"}, {"18", "18"}, {"19", "19"}, {"20", "20"}, {"21", "21"}, {"22", "22"}, {"23", "23"}, {"24", "24"}, {"25", "25"}, {"26", "26"}, {"27", "27"}, {"28", "28"}, {"29", "29"}, {"30", "30"}, {"31", "31"}, {"32", "32"}, {"33", "33"}, {"34", "34"}, {"35", "35"}, {"36", "36"}, {"37", "37"}, {"38", "38"}, {"39", "39"}, {"40", "40"}, {"41", "41"}, {"42", "42"}, {"43", "43"}, {"44", "44"}, {"45", "45"}, {"46", "46"}, {"47", "47"}, {"48", "48"}, {"49", "49"}, {"50", "50"}, {"51", "51"}, {"52", "52"}, {"53", "53"}, {"54", "54"}, {"55", "55"}, {"56", "56"}, {"57", "57"}, {"58", "58"}, {"59", "59"} }, ng_model: "ctl.editItem.MINUTE", required: false)
+                        }),
+                        Html.RenderRow(new List<IHtmlString>() {
+                            @Html.RenderTextbox("COMMENTS_EDIT", "Comments", gridPart: 8, rows: 5, maxLength: 100, ng_model: "ctl.editItem.COMMENTS", required: false, valGroup: "group"),
+                            @Html.RenderCheckbox("JOB_ENABLED_EDIT", gridPart: 4, label: "Enabled", ng_model: "ctl.editItem.JOB_ENABLED")
+                        })
+                    },
+                    new List<IHtmlString>() {
+                        @Html.RenderButton(ButtonType.Button, ButtonColor.Primary, label: "Save", ng_click: "ctl.save()"),
+                        @Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes:"data-dismiss='modal'") })
+                }, @class: "no-padding")
+
+                    @Html.RenderModal("gridDeleteModal", "Delete Job", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want delete this record?</p>")
+                       }, new List<IHtmlString>() {
+                           Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Delete", ng_click: "ctl.delete()"),
+                           Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Administration/JobsController.js?version=@ViewBag.JSVersion"></script>
+}
+
+

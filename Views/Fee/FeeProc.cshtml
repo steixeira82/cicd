@@ -1,0 +1,115 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="PageController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wFPE", "Fee Process Equities",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("procForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("P_DT_TRADE", "Trade Date", gridPart: 2, required: true, ng_model: "ctl.calc.P_DT_TRADE", allowTime: false),
+                                Html.RenderDatetimePicker("P_DT_MOV", "Mov. Date", gridPart: 2, required: true, ng_model: "ctl.calc.P_DT_MOV", allowTime: false),
+                                Html.RenderSelect("P_CD_CLIENTE", SelectType.Single, label: "Client", gridPart: 2, ng_repeat: "ctl.view.P_CD_CLIENTE_data", ng_model: "ctl.calc.P_CD_CLIENTE", ajax: "GetClientIdsPlusAll", convertToNumber: true, required: true),
+                                Html.RenderSelect("P_CD_BROKER", SelectType.Single, label: "Broker", gridPart: 2, ng_repeat: "ctl.view.P_CD_BROKER_data", ng_model: "ctl.calc.P_CD_BROKER", ajax: "GetBrokersIdsPlusAll", convertToNumber: true, required: true),
+                                Html.RenderCheckbox("P_FLAG_AMEND", gridPart: 2, label: "Consider Previous Amendement", ng_model: "ctl.calc.P_FLAG_AMEND"),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Danger, gridPart: 2, size: ButtonSize.md, label: "Calculate", ng_click: "ctl.disclaimer()" )
+                                
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtRecentUpdates",
+                                        new List<DataGridOptions>() {
+                                            new DataGridOptions() { Id = "FEE_PROC_ID", ColumnName = "ID", Sortable = true, Order = "desc", isKey = true },
+                                            new DataGridOptions() { Id = "FEE_PROC_EXEC_DATE", ColumnName = "Execution Dt.", Sortable = true, Type = ColumnType.DateTime, Order = "desc" },
+                                            new DataGridOptions() { Id = "FEE_PROC_EXEC_END_DATE", ColumnName = "Execution end Dt.", Sortable = true, Type = ColumnType.DateTime },
+                                            new DataGridOptions() { Id = "FEE_PROC_DATE", ColumnName = "Calc. Dt.", Sortable = true, Type = ColumnType.Date },
+                                            new DataGridOptions() { Id = "CD_CLIENTE", ColumnName = "Client", Sortable = true },
+                                            new DataGridOptions() { Id = "CD_BROKER", ColumnName = "Broker", Sortable = true },
+                                            new DataGridOptions() { Id = "FEE_PROC_USER", ColumnName = "User", Sortable = true },
+                                            new DataGridOptions() { Id = "FEE_PROC_STATUS", ColumnName = "Status", Sortable = true },
+                                            new DataGridOptions() { Id = "FEE_PROC_COMMENT", ColumnName = "Comment", Sortable = true },
+                                            new DataGridOptions() { Id = "FEE_PROC_PROGRESS", ColumnName = "Progress", Sortable = false, isHTML = true },
+                                        },
+                                        actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.detail", Color = ButtonColor.Warning, Icon = "plus" }},
+                                        itemsPerPage: 10,
+                                        ajax: "GetProcFeeView"//,
+//                                        createdRow: @"if (data.FEE_PROC_STATUS == 1) {
+//                                                        $(row).addClass('green-backgroud');
+//                                                      }",
+                                        //legend: new List<DataGridLegend>() {
+                                        //    new DataGridLegend() { Css = "green-background", Description = "Success" }
+                                        //}
+                                    )
+                                },
+                                legend: "Recent Executions")
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtExecutionDetails",
+                                        new List<DataGridOptions>() {
+                                            new DataGridOptions() { Id = "CD_CLIENTE", ColumnName = "Client", Sortable = true },
+                                            new DataGridOptions() { Id = "COD_ORIG", ColumnName = "Broker", Sortable = false },
+                                            new DataGridOptions() { Id = "FEE_DT_TRADE", ColumnName = "Trade Date", Sortable = true },
+                                            new DataGridOptions() { Id = "NR_NEGOCIO", ColumnName = "Trade Member", Sortable = true },
+                                            new DataGridOptions() { Id = "VL_NEGOCIO", ColumnName = "Price", Sortable = true, Type = ColumnType.Decimal },
+                                            new DataGridOptions() { Id = "QT_QTDESP", ColumnName = "Qty", Sortable = true, Type = ColumnType.Decimal },
+                                            //new DataGridOptions() { Id = "VL_LIQOPER", ColumnName = "VL_LIQOPER", Hidden = true },
+                                            //new DataGridOptions() { Id = "VL_LIQOPER_NEW", ColumnName = "VL_LIQOPER_NEW", Hidden = true },
+                                            new DataGridOptions() { Id = "VAL_COR_EXE_NEW", ColumnName = "New broker Fee", Sortable = true, Type = ColumnType.Decimal },
+                                            //new DataGridOptions() { Id = "FEE_EXEC_ID", ColumnName = "ID", Sortable = true, Order = "asc" },
+                                            //new DataGridOptions() { Id = "FEE_EXEC_DT", ColumnName = "Execution Dt.", Sortable = true, Type = ColumnType.DateTime, Hidden = true },
+                                            new DataGridOptions() { Id = "CD_NEGOCIO", ColumnName = "Trade Id", Sortable = true },
+                                            new DataGridOptions() { Id = "CHANNEL", ColumnName = "CHANNEL", Sortable = true },
+                                            new DataGridOptions() { Id = "TP_MARKET", ColumnName = "Market Type", Sortable = true },
+                                            new DataGridOptions() { Id = "FEE_CALC_DESC", ColumnName = "FEE_CALC_DESC", Sortable = true },
+                                            new DataGridOptions() { Id = "FEE_CALC_FACTOR", ColumnName = "Factor", Sortable = true, Type = ColumnType.Decimal },
+                                            new DataGridOptions() { Id = "FEE_EXEC_STATUS", ColumnName = "FEE_EXEC_STATUS", Sortable = false },
+                                            new DataGridOptions() { Id = "FEE_COMMENTS", ColumnName = "Comments", Sortable = true },
+                                            new DataGridOptions() { Id = "FEE_DT_MOV", ColumnName = "FEE_DT_MOV", Sortable = true },
+                                            new DataGridOptions() { Id = "FEE_ROWID", ColumnName = "FEE_ROWID", Sortable = true },
+                                            new DataGridOptions() { Id = "CD_OBJECT", ColumnName = "CD_OBJECT", Sortable = true },
+                                            new DataGridOptions() { Id = "FEE_ROW_ID", ColumnName = "FEE_ROW_ID", Sortable = true },
+                                            new DataGridOptions() { Id = "FEE_PROC_ID", ColumnName = "FEE_PROC_ID", Hidden = true },
+                                        },
+                                        itemsPerPage: 10,
+                                        ajax: "GetProcFeeExecView",
+                                        autoWidth: true,
+                                        columnFilter: true,
+                                        postData: "FEE_PROC_ID: 0",
+                                        serverSide: true,
+                                        scrollX: true
+                                    )
+                                },
+                                legend: "Execution Details")
+                            })
+                        })
+                    }
+                )
+
+                @Html.RenderModal("gridInformModal", "Confirmation", new List<IHtmlString>() {
+                        Html.RenderHTML("<p>Are you sure you want to calculate?</p>")
+                    }, new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Calculate", ng_click: "ctl.calculate()"),
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                    }
+                )
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Fee/FeeProcController.js?version=@ViewBag.JSVersion"></script>
+}

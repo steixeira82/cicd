@@ -1,0 +1,173 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="GiveUpController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget(
+                    "wgiveUp",
+                    "GiveUp",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("giveupForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("DATA_PREG", "Trade Date", gridPart: 2, required: true, ng_model: "ctl.filter.DATA_PREG", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderSelect("COD_SITU_ALOC", SelectType.Single, label: "Status", gridPart: 2, required: true, options: new Dictionary<string,string>() { {"3", "Pending"}, {"4", "Approved"}, {"5", "Rejected"} } , ng_model: "ctl.filter.COD_SITU_ALOC", convertToNumber: true, ng_change: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 3, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" )
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtGiveUp",
+                                        new List<DataGridOptions>() {
+                                            new DataGridOptions() { Id = "NUM_SEQ_APRO_RPSS", ColumnName = "Giveup ID", Sortable = true },
+                                            new DataGridOptions() { Id = "NUM_ORDE", ColumnName = "Order Number", Sortable = true },
+                                            new DataGridOptions() { Id = "NUM_NEG", ColumnName = "Trade Number", Sortable = true },
+                                            new DataGridOptions() { Id = "DATA_PREG", ColumnName = "Trade Date", Sortable = true, Type = ColumnType.Date },
+                                            new DataGridOptions() { Id = "COD_NEG", ColumnName = "Symbol", Sortable = true },
+                                            new DataGridOptions() { Id = "QTE_RPSS", ColumnName = "Quantity", Sortable = true },
+                                            new DataGridOptions() { Id = "VLR_COT_NEG", ColumnName = "Price", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "VLR_PREC_EXER", ColumnName = "Excercice Price", Sortable = true },
+                                            new DataGridOptions() { Id = "COD_NAT_OPRC", ColumnName = "Side", Sortable = true },
+                                            new DataGridOptions() { Id = "COD_TIPO_OPC", ColumnName = "Option Type", Sortable = true },
+                                            new DataGridOptions() { Id = "COD_ISIN", ColumnName = "ISIN", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_IDT_ATIV", ColumnName = "COD_IDT_ATIV", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_ORIG_IDT_ATIV", ColumnName = "COD_ORIG_IDT_ATIV", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_BOLS_NEG", ColumnName = "COD_BOLS_NEG", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_MERC", ColumnName = "COD_MERC", Sortable = true },
+                                            //new DataGridOptions() { Id = "FAT_COT", ColumnName = "FAT_COT", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_FORM_LIQC", ColumnName = "COD_FORM_LIQC", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_TIPO_NEG", ColumnName = "COD_TIPO_NEG", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_STIP_NEG", ColumnName = "COD_STIP_NEG", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_IND_SESS_NEG", ColumnName = "COD_IND_SESS_NEG", Sortable = true },
+                                            //new DataGridOptions() { Id = "PRZ_VENC", ColumnName = "PRZ_VENC", Sortable = true },
+                                            new DataGridOptions() { Id = "NOME_CANL_NEG", ColumnName = "Origin", Sortable = true },
+                                            new DataGridOptions() { Id = "COD_OPDO", ColumnName = "Trade Session", Sortable = true },
+                                            //new DataGridOptions() { Id = "DATA_INIC_VALO", ColumnName = "DATA_INIC_VALO", Sortable = true },
+                                            new DataGridOptions() { Id = "COD_PAR_ORIG", ColumnName = "Broker", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_CATG_PAR_ORIG", ColumnName = "COD_CATG_PAR_ORIG", Sortable = true },
+                                            new DataGridOptions() { Id = "COD_IDT_CON_PAR_DEST", ColumnName = "Client", Sortable = true },
+                                            new DataGridOptions() { Id = "COD_IDT_CON_PAR_ORIG", ColumnName = "Giveup Link", Sortable = true },
+                                            new DataGridOptions() { Id = "COD_IDT_ALOC", ColumnName = "Allocation ID", Sortable = true, NoWrap = true },
+                                            new DataGridOptions() { Id = "COD_IDT_ALOC_ORIG", ColumnName = "Origin Allocation ID", Sortable = true, NoWrap = true },
+                                            new DataGridOptions() { Id = "COD_SITU_APRO", ColumnName = "Approval Situation", Sortable = true },
+                                            new DataGridOptions() { Id = "IND_APRO_ENV", ColumnName = "Approval Sent", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_TIPO_CORR", ColumnName = "COD_TIPO_CORR", Sortable = true },
+                                            new DataGridOptions() { Id = "IND_QUEB_REGR", ColumnName = "Broken Rule", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_RESP_ATRS", ColumnName = "COD_RESP_ATRS", Sortable = true },
+                                            new DataGridOptions() { Id = "DESC_ERRO", ColumnName = "Error Desc.", Sortable = true },
+                                            new DataGridOptions() { Id = "DATA_MVTO", ColumnName = "Mov. Date", Sortable = true, Type = ColumnType.Date },
+                                            new DataGridOptions() { Id = "COD_SITU_ALOC", ColumnName = "COD_SITU_ALOC", Sortable = true },
+                                            new DataGridOptions() { Id = "DTHR_REG_NEG", ColumnName = "Trade Time", Sortable = true, Type = ColumnType.DateTime, NoWrap = true },
+                                            new DataGridOptions() { Id = "DTHR_RPSS", ColumnName = "Giveup Time", Sortable = true, Type = ColumnType.DateTime, NoWrap = true },
+                                            new DataGridOptions() { Id = "TMST_INCL", ColumnName = "Register Inclusion Time", Sortable = true, Type = ColumnType.DateTime, NoWrap = true },
+                                            new DataGridOptions() { Id = "DTHR_ULT_ALTE", ColumnName = "Giveup Last Update", Sortable = true, Type = ColumnType.DateTime, NoWrap = true },
+                                            //new DataGridOptions() { Id = "TMST_ALT", ColumnName = "Last Update Time", Sortable = true, Type = ColumnType.DateTime, NoWrap = true },
+                                            //new DataGridOptions() { Id = "COD_PAR_DEST", ColumnName = "COD_PAR_DEST", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_CATG_PAR_DEST", ColumnName = "COD_CATG_PAR_DEST", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_JUST", ColumnName = "COD_JUST", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_IDT_NUCL_ALOC", ColumnName = "COD_IDT_NUCL_ALOC", Sortable = true },
+                                            //new DataGridOptions() { Id = "NUM_IDT_PROT_NEG", ColumnName = "NUM_IDT_PROT_NEG", Sortable = true },
+                                            //new DataGridOptions() { Id = "VLR_PREC_FUTU_CUR", ColumnName = "VLR_PREC_FUTU_CUR", Sortable = true },
+                                            //new DataGridOptions() { Id = "VLR_PREC_FUTU_LNGO", ColumnName = "VLR_PREC_FUTU_LNGO", Sortable = true },
+                                            //new DataGridOptions() { Id = "NUM_COMU_LEIL_BACEN", ColumnName = "NUM_COMU_LEIL_BACEN", Sortable = true },
+                                            //new DataGridOptions() { Id = "NUM_PRPS_SWAP_BACEN", ColumnName = "NUM_PRPS_SWAP_BACEN", Sortable = true },
+                                            //new DataGridOptions() { Id = "NUM_CON_SELIC_BACEN", ColumnName = "NUM_CON_SELIC_BACEN", Sortable = true },
+                                            //new DataGridOptions() { Id = "IND_RESP_AUTO_BVMF", ColumnName = "IND_RESP_AUTO_BVMF", Sortable = true },
+                                            //new DataGridOptions() { Id = "DTHR_ULT_ALTE_MOD_EXTE", ColumnName = "DTHR_ULT_ALTE_MOD_EXTE", Sortable = true },
+                                            //new DataGridOptions() { Id = "DTHR_INCL", ColumnName = "DTHR_INCL", Sortable = true, Type = ColumnType.DateTime, NoWrap = true },
+                                            //new DataGridOptions() { Id = "NUM_IDT_EXTE", ColumnName = "NUM_IDT_EXTE", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_ALOC", ColumnName = "COD_ALOC", Sortable = true, NoWrap = true },
+                                            //new DataGridOptions() { Id = "COD_CON", ColumnName = "COD_CON", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_CON_RPSS", ColumnName = "COD_CON_RPSS", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_EMSS_DOC", ColumnName = "COD_EMSS_DOC", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_EMSS_DOC_PAR", ColumnName = "COD_EMSS_DOC_PAR", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_IDT_IMTO", ColumnName = "COD_IDT_IMTO", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_IDT_OPRC_ETF", ColumnName = "COD_IDT_OPRC_ETF", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_IDT_RPSS", ColumnName = "COD_IDT_RPSS", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_SEGM", ColumnName = "COD_SEGM", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_TIPO_DOCM", ColumnName = "COD_TIPO_DOCM", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_TIPO_DOCM_PAR", ColumnName = "COD_TIPO_DOCM_PAR", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_TIPO_ETF", ColumnName = "COD_TIPO_ETF", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_TIPO_OPRC", ColumnName = "COD_TIPO_OPRC", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_TIPO_QTE_VAL", ColumnName = "COD_TIPO_QTE_VAL", Sortable = true },
+                                            //new DataGridOptions() { Id = "DTHR_EXEC_NEG", ColumnName = "Trade ", Sortable = true, Type = ColumnType.DateTime, NoWrap = true },
+                                            //new DataGridOptions() { Id = "NUM_DIST_PAP", ColumnName = "NUM_DIST_PAP", Sortable = true },
+
+                                            //new DataGridOptions() { Id = "VAL_AJU", ColumnName = "VAL_AJU", Sortable = true },
+                                            //new DataGridOptions() { Id = "VAL_OUTR_COBA", ColumnName = "VAL_OUTR_COBA", Sortable = true },
+                                            //new DataGridOptions() { Id = "VAL_TAXA_ADMI_FUN", ColumnName = "VAL_TAXA_ADMI_FUN", Sortable = true },
+                                            //new DataGridOptions() { Id = "VAL_ETRG_DELT", ColumnName = "VAL_ETRG_DELT", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_STAT_IMTO", ColumnName = "COD_STAT_IMTO", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_FASE_GRUP_IMTO", ColumnName = "COD_FASE_GRUP_IMTO", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_MENB_COMN", ColumnName = "COD_MENB_COMN", Sortable = true },
+                                            //new DataGridOptions() { Id = "VAL_VOL_NEG", ColumnName = "VAL_VOL_NEG", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_CART", ColumnName = "COD_CART", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_AGCT", ColumnName = "COD_AGCT", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_CON_CUST", ColumnName = "COD_CON_CUST", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_RPSS", ColumnName = "COD_RPSS", Sortable = true },
+                                            //new DataGridOptions() { Id = "NUM_NEG_PUMA", ColumnName = "NUM_NEG_PUMA", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_IDT_ALOC_IMERC", ColumnName = "COD_IDT_ALOC_IMERC", Sortable = true },
+                                            //new DataGridOptions() { Id = "DESC_MESA_NEG_ETRG", ColumnName = "DESC_MESA_NEG_ETRG", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_TIPO_ATLZ_ETF", ColumnName = "COD_TIPO_ATLZ_ETF", Sortable = true },
+                                            //new DataGridOptions() { Id = "DTHR_CANC_NEG", ColumnName = "DTHR_CANC_NEG", Sortable = true, Type = ColumnType.DateTime, NoWrap = true  },
+                                            //new DataGridOptions() { Id = "QTE_RMNTE_CANC_NEG", ColumnName = "QTE_RMNTE_CANC_NEG", Sortable = true },
+                                            //new DataGridOptions() { Id = "TXT_JUST_CANC_NEG", ColumnName = "TXT_JUST_CANC_NEG", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_LOTE_ETF", ColumnName = "COD_LOTE_ETF", Sortable = true },
+
+                                            //new DataGridOptions() { Id = "TMST_ALT_ETF", ColumnName = "TMST_ALT_ETF", Sortable = true, Type = ColumnType.DateTime, NoWrap = true },
+                                            //new DataGridOptions() { Id = "COD_PAR_NEG", ColumnName = "COD_PAR_NEG", Sortable = true },
+                                            //new DataGridOptions() { Id = "COD_CATG_PAR_NEG", ColumnName = "COD_CATG_PAR_NEG", Sortable = true },
+                                            //new DataGridOptions() { Id = "DESC_ACAO", ColumnName = "DESC_ACAO", Sortable = true },
+                                            //new DataGridOptions() { Id = "TMST_ALT_CCIL", ColumnName = "TMST_ALT_CCIL", Sortable = true, Type = ColumnType.DateTime, NoWrap = true  },
+                                            //new DataGridOptions() { Id = "NUM_SEQ_SOLI_ARQ_BVMF", ColumnName = "NUM_SEQ_SOLI_ARQ_BVMF", Sortable = true },
+                                        },
+                                        legend: new List<DataGridLegend>() {
+                                            new DataGridLegend() { Css = "yellow-background", Description = "Pending" },
+                                            new DataGridLegend() { Css = "green-background", Description = "Approved" },
+                                            new DataGridLegend() { Css = "red-background", Description = "Rejected" },
+                                        },
+                                        createdRow: @"if (data.COD_SITU_ALOC == 3) {
+                                                        $(row).addClass('yellow-background');
+                                                      }
+                                                      else if (data.COD_SITU_ALOC == 4) {
+                                                        $(row).addClass('green-background');
+                                                      }
+                                                      else if (data.COD_SITU_ALOC == 5) {
+                                                        $(row).addClass('red-background');
+                                                      }",
+                                        showPaging: true,
+                                        itemsPerPage: 10,
+                                        autoWidth: true,
+                                        ajax: "GetGiveUp",
+                                        postData: "DATA_PREG: moment().format('DD/MM/YYYY'), COD_SITU_ALOC: ''",
+                                        serverSide: true,
+                                        scrollX: true,
+                                        columnFilter: true
+
+                                    )
+                              })
+                          })
+                        })
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                    }
+                )
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/OpsControl/GiveUpController.js?version=@ViewBag.JSVersion"></script>
+}

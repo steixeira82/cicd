@@ -1,0 +1,88 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="FinanceIntegrationController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget(
+                    "wFinance",
+                    "Finance Integration",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("informForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("FINANCE_DT_LANC", "Lanc. Date", gridPart: 2, required: true, ng_model: "ctl.filter.FINANCE_DT_LANC", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderSelect("FINANCE_TYPE", SelectType.Single, label: "Status", gridPart: 2, required: true, options: new Dictionary<string,string>() { {"1", "Guia Created"}, {"2", "Lanc."}, {"3", "Guia Closed"} } , ng_model: "ctl.filter.FINANCE_TYPE", convertToNumber: true, ng_change: "ctl.update()" ),
+                                Html.RenderSelect("FINANCE_SYS", SelectType.Single, label: "System Origin", gridPart: 2, required: true, options: new Dictionary<string,string>() { {"SIN", "SIN"}, {"CMS", "CMS"} } , ng_model: "ctl.filter.FINANCE_SYS", ng_change: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 3, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" )
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtFinance",
+                                        new List<DataGridOptions>() {
+                                            new DataGridOptions() { Id = "FINANCE_NR_GUIA", ColumnName = "Guia", Sortable = true, Order = "desc" },
+                                            new DataGridOptions() { Id = "FINANCE_DT_LANC", ColumnName = "Lanc. Date", Sortable = true },
+                                            new DataGridOptions() { Id = "FINANCE_DT_UPDATE", ColumnName = "Updated Date", Sortable = true, Type = ColumnType.DateTime, NoWrap = true },
+                                            new DataGridOptions() { Id = "FINANCE_CTA_DEB", ColumnName = "Debit Account", Sortable = true },
+                                            new DataGridOptions() { Id = "FINANCE_CTA_CRE", ColumnName = "Credit Account", Sortable = true },
+                                            new DataGridOptions() { Id = "FINANCE_VLR", ColumnName = "Value", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "FINANCE_HIST", ColumnName = "History", Sortable = true },
+                                            new DataGridOptions() { Id = "FINANCE_LANC_CC", ColumnName = "Lanc. CC", Sortable = true },
+                                            new DataGridOptions() { Id = "FINANCE_LANC_CCCONTRA", ColumnName = "Lanc. CContra", Sortable = true },
+                                            new DataGridOptions() { Id = "FINANCE_MG_ERRO", ColumnName = "Error Message", Sortable = true },
+                                            new DataGridOptions() { Id = "FINANCE_CCUSTO", ColumnName = "Center Cost", Sortable = true },
+                                            new DataGridOptions() { Id = "FINANCE_CLIENTE", ColumnName = "Client", Sortable = true },
+                                            //new DataGridOptions() { Id = "FINANCE_LOG_ID", ColumnName = "FINANCE_LOG_ID", Sortable = true },
+                                            new DataGridOptions() { Id = "FINANCE_TYPE", ColumnName = "FINANCE_TYPE", Sortable = true, Hidden = true, Order = "desc" },
+                                            new DataGridOptions() { Id = "FINANCE_SYS", ColumnName = "System Origin", Sortable = true, Order = "desc" },
+                                        },
+                                        legend: new List<DataGridLegend>() {
+                                            new DataGridLegend() { Css = "yellow-background", Description = "Guia Created" },
+                                            new DataGridLegend() { Css = "green-background", Description = "Lanc." },
+                                            new DataGridLegend() { Css = "blue-background", Description = "Guia Closed" },
+                                        },
+                                        createdRow: @"if (data.FINANCE_TYPE == 1) {
+                                                        $(row).addClass('yellow-background');
+                                                      }
+                                                      else if (data.FINANCE_TYPE == 2) {
+                                                        $(row).addClass('green-background');
+                                                      }
+                                                      else if (data.FINANCE_TYPE == 3) {
+                                                        $(row).addClass('blue-background');
+                                                      }",
+                                        showPaging: true,
+                                        itemsPerPage: 10,
+                                        autoWidth: true,
+                                        ajax: "GetFinanceIntegration",
+                                        postData: "FINANCE_DT_LANC: moment().format('DD/MM/YYYY'), FINANCE_TYPE: '', FINANCE_SYS: ''",
+                                        serverSide: true,
+                                        scrollX: true
+                                    )
+                              })
+                          })
+                        })
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                    }
+                )
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/OpsControl/FinanceIntegrationController.js?version=@ViewBag.JSVersion"></script>
+    
+}

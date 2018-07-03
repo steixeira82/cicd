@@ -1,0 +1,191 @@
+﻿@{
+    ViewBag.scripts = new List<string>();
+    ViewBag.bundles = new List<string>();
+    ViewBag.directives = new List<string>();
+    ViewBag.modules = new List<string>();
+}
+
+<div id="content" ng-app="App" ng-controller="DashboardController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            @Html.RenderShareData("momentjsLongDateTimeFormat", (string)ViewBag.momentjsLongDateTimeFormat)
+            @*<div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderHTML("<h3 class='alert alert-info' ng-cloak>{{ ctl.refreshTime }}</h3>")
+                </div>
+            </div>*@
+            <div class="row">
+                <article class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                    @Html.RenderWidget(
+                    "wTradesMonitor",
+                    "Health Trades Monitor",
+                    new List<IHtmlString>() {
+                        Html.RenderChart(ChartType.Bar, 12, "gtrades", "/Home/GetTradesMonitorView",
+                            100,
+                            labels: new List<string>() { "SMP Pending", "SMP Rejected", "SMP Approved", "Sinacor Ordens", "MICSBR", "MICSCE", "Sinacor Fin" },
+                            series: new List<ChartSerie>() {
+                                new ChartSerie() { DataId = "Equities", Label = "Equities", RGBColor = "rgb(208, 219, 183)" },
+                                new ChartSerie() { DataId = "Futures", Label = "Futures", RGBColor = "rgb(125, 165, 192)" }
+                            },
+                            initialized: false,
+                            showLabels: true
+                        )
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", ng_click: "ctl.update()")
+                    },
+                    sortable: true,
+                    showEditButton: true,
+                    gridPart: 6,
+                    showToggleButton: true
+                )
+                 @Html.RenderWidget(
+                    "wMonitorClient",
+                    "Monitor Client x Trades",
+                    new List<IHtmlString>() {
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderChart(ChartType.Bar, 12, "gMonitorClientFutures", "/Home/GetMonitorClientFuturesView",
+                                title: "Futures",
+                                height: 75,
+                                initialized: false,
+                                showLabels: true,
+                                showLegend: false,
+                                showTooltips: false,
+                                series: new List<ChartSerie>() {
+                                    new ChartSerie() { DataId = "Futures", Label = "Futures", RGBColor = "rgb(125, 165, 192)" }
+                                }
+                            ),
+                            Html.RenderChart(ChartType.Bar, 12, "gMonitorClientEquities", "/Home/GetMonitorClientEquitiesView",
+                                title: "Equities",
+                                height: 75,
+                                initialized: false,
+                                showLabels: true,
+                                showLegend: false,
+                                showTooltips: false,
+                                series: new List<ChartSerie>() {
+                                    new ChartSerie() { DataId = "Equities", Label = "Equities", RGBColor = "rgb(208, 219, 183)" }
+                                }
+                            )
+                        }),
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", ng_click: "ctl.update()")
+                    },
+                    sortable: true,
+                    showEditButton: true,
+                    gridPart: 6
+                )
+                </article>
+                <article class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                    
+                @Html.RenderWidget(
+                    "wMonitorBatch",
+                    "Monitor Batch x Real-time",
+
+                    new List<IHtmlString>() {
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderChart(ChartType.HorizontalBar, 12, "gMonitorBatch", "/Home/GetMonitorBatchView",
+                                height: 75,
+                                title: "Futures",
+                                initialized: false,
+                                showLabels: true,
+                                showTooltips: true,
+                                showLegend: false,
+                                customTooltip: true,
+                                series: new List<ChartSerie>() {
+                                new ChartSerie() { DataId = "ClientType", Label = "Client Type", RGBColor = "rgba(54, 162, 235, 1)" }
+                                }
+                            ),
+                        }),
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", ng_click: "ctl.update()")
+                    },
+                    sortable: true,
+                    showEditButton: true,
+                    gridPart: 6
+                )
+                    @Html.RenderWidget(
+                    "wMarketMaker",
+                    "Market Maker Monitor",
+                    new List<IHtmlString>() {
+                        Html.RenderDataTable("dtMarketMaker",
+                                new List<DataGridOptions>() {
+                                    new DataGridOptions() { Id = "PREGAO", ColumnName = "Trade Date", Sortable = true, Type = ColumnType.Date },
+                                    new DataGridOptions() { Id = "NEGOCIO", ColumnName = "Symbol", Sortable = true},
+                                    new DataGridOptions() { Id = "ORIGEM", ColumnName = "GiveUp Link", Sortable = true},
+                                    new DataGridOptions() { Id = "DESTINO", ColumnName = "Client", Sortable = true},
+                                    new DataGridOptions() { Id = "BROKER", ColumnName = "Broker", Sortable = true},
+                                    new DataGridOptions() { Id = "NOME_BROKER", ColumnName = "Broker Name", Sortable = true, NoWrap = true},
+                                },
+                             
+                                createdRow: @"if (data.ISINPAPT == 1) {
+                                                $(row).addClass('red-background');
+                                                }",                                
+                                showPaging: true,
+                                ajax: "/Home/GetMarketMakerMonitor",
+                                columnFilter: false,
+                                showSearch: false, 
+                                showExport: false, itemsPerPage: 5
+                       )
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", ng_click: "ctl.update()")
+                    },
+                    sortable: true,
+                    showEditButton: true,
+                    gridPart: 6
+                    
+
+                )
+                    @*@Html.RenderWidget(
+                    "wProcessExecutions",
+                    "Process Executions Today",
+                    new List<IHtmlString>() {
+                        Html.RenderChart(ChartType.Bar, 12, "gProcesses", "/Home/GetExecutionProcessView",
+                            50,
+                            labels: new List<string>() { "Queued", "Executing", "Error", "Partially Executed", "Successfully Executed" },
+                            series: new List<ChartSerie>() {
+                                new ChartSerie() { DataId = "Processes", Label = "Processes", RGBColor = "rgb(208, 219, 183)" }
+                            },
+                            initialized: false,
+                            showLabels: true,
+                            showLegend: false
+                        )
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", ng_click: "ctl.update()")
+                    },
+                    sortable: true,
+                    showEditButton: true,
+                    gridPart: 6
+                )*@
+                    @Html.RenderWidget(
+                    "wEstimated",
+                    "Estimated Time Send to Mics",
+                    new List<IHtmlString>() {
+                        Html.RenderTimeline("tEstimated", "/home/GetFechamentoSinacor", startHour: 20, endHour: 22, height: 150, groups: new List<TimelineGroup>() { new TimelineGroup() { id = 1, content = "ABN" }, new TimelineGroup() { id = 2, content = "Sinacor" } } )
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", ng_click: "ctl.update()")
+                    },
+                    sortable: true,
+                    showEditButton: true,
+                    gridPart: 6
+                    
+                )
+                
+                </article>
+            </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Home/Dashboard.js?version=@ViewBag.JSVersion"></script>
+}

@@ -1,0 +1,54 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="ReportInvoiceController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wCarryingReportInvoice", "Carrying Report Invoice", new List<IHtmlString>() {
+                        Html.RenderForm("filterForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderSelect("CD_CLIENTE", SelectType.Single, label: "Client", gridPart: 3, ng_repeat: "vm.view.CD_CLIENTE_data", ng_model: "ctl.filter.CD_CLIENTE", ajax: "GetClientIds", convertToNumber: true, required: true),// ng_change: "ctl.update()"),
+                                Html.RenderDatetimePicker("DT_START", "Start Date", gridPart: 3, ng_model: "ctl.filter.DT_START", allowTime: false),// ng_change: "ctl.update()" ),
+                                Html.RenderDatetimePicker("DT_END", "End Date", gridPart: 3, ng_model: "ctl.filter.DT_END", allowTime: false),//, ng_change: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, id: "idSearch", gridPart: 1, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Warning, gridPart: 2, size: ButtonSize.md, label: "Export Pdf", ng_click: "ctl.exportPdf()"),
+                                Html.RenderHTML("<iframe id='my_iframe' style='display:none;'></iframe>")
+                            })
+                            ,
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtCarryingReportInvoice", new List<DataGridOptions>() {
+                                        new DataGridOptions() { Id = "DT_NEGOCIO", ColumnName = "Date", Expand = true, Type = ColumnType.Date },
+                                        new DataGridOptions() { Id = "CD_CLIENTE", ColumnName = "Account" },
+                                        new DataGridOptions() { Id = "BROKER_FEE", ColumnName = "Broker Fee", Expand = true, Type = ColumnType.Currency },
+                                        new DataGridOptions() { Id = "RATE", ColumnName = "Rate BCBF", Expand = true, Type = ColumnType.Percent2 },
+                                        new DataGridOptions() { Id = "BCBF", ColumnName = "BCBF (BRL)", Expand = true, Type = ColumnType.Currency }
+                                        },
+                                        itemsPerPage: 10,
+                                        postData: "DT_START: '" + new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToString("dd/MM/yyyy") + "', DT_END: '" + DateTime.Now.ToString("dd/MM/yyyy") + "', CD_CLIENTE: ''",
+                                        ajax: "GetCarryingReportInvoice",
+                                        columnFilter: true )
+                                })
+                            })
+                        })
+                    })
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/CarryingFee/ReportInvoiceController.js?version=@ViewBag.JSVersion"></script>
+}

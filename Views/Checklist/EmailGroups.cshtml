@@ -1,0 +1,70 @@
+﻿
+@{
+    ViewBag.Title = "E-mail Group";
+    ViewBag.scripts = new List<string>();
+    ViewBag.bundles = new List<string>();
+    ViewBag.directives = new List<string>();
+    ViewBag.modules = new List<string>();
+}
+
+<div id="content" ng-app="App" ng-controller="EmailGroupsController as ctl">
+    <div ng-controller="viewController as vm">
+        <!-- widget grid -->
+        <section id="widget-grid" class="">
+
+            <!-- row -->
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wEmailGroups", "E-mail Groups", new List<IHtmlString>() {
+                    Html.RenderDataTable("dtEmailGroups", new List<DataGridOptions>() { new DataGridOptions() { Id = "GROUP_EMAIL_ID", ColumnName = "ID", Sortable = true, isKey = true },
+                               new DataGridOptions() { Id = "GROUP_EMAIL_NAME", ColumnName = "Email Group Name", Sortable = true },
+                               new DataGridOptions() { Id = "EMAILS", ColumnName = "Emails", Sortable = true }
+                                }, actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.modify", Color = ButtonColor.Warning, Icon = "edit" },
+                                                                          new DataGridActions() { Ng_click = "ctl.remove", Color = ButtonColor.Danger, Icon = "trash-o" }}
+                                 , itemsPerPage: 10, ajax: "GetEmailGroupsView")
+                    }, new List<IHtmlString>() { Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "plus", label: "Add", ng_click: "ctl.new()") }, icon: "table")
+
+                    @Html.RenderModal("gridEditModal", "E-mail Group", new List<IHtmlString>() {
+                    Html.RenderForm("editForm", new List<IHtmlString>() {
+                        Html.RenderRow(new List<IHtmlString>() {
+                            Html.RenderTextbox("GROUP_EMAIL_ID", "ID", gridPart: 2, maxLength:10, ng_model: "ctl.editItem.GROUP_EMAIL_ID", enable: false),
+                            Html.RenderTextbox("GROUP_EMAIL_NAME", "E-mail group Name", gridPart: 10, maxLength: 100, ng_model: "ctl.editItem.GROUP_EMAIL_NAME", required: true, valGroup: "group")
+                        }),
+                        Html.RenderRow(new List<IHtmlString>() {
+                        Html.RenderFieldset(new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderSelect("EMAILS", SelectType.Multiple, gridPart: 9, label: "E-mails", height: 150, ng_repeat: "vm.view.EMAILS_data", ng_model: "ctl.editItem.EMAILS", ajax: "GetEmailsFromEmailGroups", initialized: false),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Danger, gridPart: 3, label: "Remove", ng_click: "ctl.removeEmail()")
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderTextbox("EMAIL", "Enter an e-mail to add", gridPart: 9, ng_model: "ctl.emailItem.email", maxLength:50, required: true, valGroup: "addEmail"),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 3, label: "Add", ng_click: "ctl.addEmail()")
+                            }) }, legend: "E-mails in group"), }),
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, label: "Save", ng_click: "ctl.save()"),
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes:"data-dismiss='modal'") })
+                }, @class: "no-padding")
+
+                    @Html.RenderModal("gridDeleteModal", "Delete Group", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want delete this record?</p>")
+                       }, new List<IHtmlString>() {
+                           Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Delete", ng_click: "ctl.delete()"),
+                           Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+
+                </div>
+               </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Checklist/EmailGroupsController.js?version=@ViewBag.JSVersion"></script>
+}
+

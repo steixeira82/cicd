@@ -1,0 +1,59 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="RulesController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wRules", "Rules", new List<IHtmlString>() {
+                    Html.RenderDataTable("dtAuthorization", new List<DataGridOptions>() { new DataGridOptions() { Id = "RULE_ID", ColumnName = "ID", Sortable = true, Expand = true, isKey = true },
+                        new DataGridOptions() { Id = "RULE_NAME", ColumnName = "Rule Name", Sortable = true },
+                        new DataGridOptions() { Id = "RULE_OBJECT_NAME", ColumnName = "Object Name", Sortable = true, HidePhone = true, HideTablet = false },
+                        new DataGridOptions() { Id = "PARENT_RULE_NAME", ColumnName = "Parent Rule", Sortable = false, HidePhone = true, HideTablet = false  },
+                        new DataGridOptions() { Id = "RULE_TYPE", ColumnName = "Type", Sortable = true, HidePhone = true, HideTablet = true },
+                        }, actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.modify", Color = ButtonColor.Warning, Icon = "edit" },
+                                                                    new DataGridActions() { Ng_click = "ctl.remove", Color = ButtonColor.Danger, Icon = "trash-o" }}
+                        , itemsPerPage: 15, ajax: "GetRulesView", autoWidth: false)
+                    }, new List<IHtmlString>() { Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "plus", label: "Add", ng_click: "ctl.new()") }
+                )
+
+                    @Html.RenderModal("gridEditModal", "Edit Authorization", new List<IHtmlString>() {
+                    Html.RenderForm("editForm", new List<IHtmlString>() {
+                    Html.RenderRow(new List<IHtmlString>() {
+                        Html.RenderTextbox("RULE_ID", "ID", gridPart: 2, maxLength:10, ng_model: "ctl.editItem.RULE_ID", enable: false),
+                        Html.RenderTextbox("RULE_NAME", "Rule Name", gridPart: 10, maxLength: 100, ng_model: "ctl.editItem.RULE_NAME", required: true) }),
+                    Html.RenderRow(new List<IHtmlString>() {
+                        Html.RenderTextbox("RULE_OBJECT_NAME", "Object Name", gridPart: 6, maxLength: 100, ng_model: "ctl.editItem.RULE_OBJECT_NAME", required: true),
+                        Html.RenderSelect("RULE_PARENT_ID", SelectType.Single, label: "Parent ID", gridPart: 6, ng_repeat: "vm.view.RULE_PARENT_ID_data", ng_model: "ctl.editItem.RULE_PARENT_ID", ajax: "GetRuleParentIds", convertToNumber: true) }),
+                    Html.RenderRow(new List<IHtmlString>() {
+                        Html.RenderSelect("RULE_TYPE", SelectType.Single, label: "Type", gridPart: 12, options: new Dictionary<string, string>() { {"menu", "Menu"}, {"feature", "Feature"} }, ng_model:"ctl.editItem.RULE_TYPE", required: true ) }) },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Submit, ButtonColor.Primary, label: "Save", ng_click: "ctl.save()"),
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Danger, label: "Cancel", attributes:"data-dismiss='modal'") })
+                    }, @class: "no-padding")
+
+                    @Html.RenderModal("gridDeleteModal", "Delete Authorization", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want delete this record?</p>")
+                }, new List<IHtmlString>() {
+                                Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Delete", ng_click: "ctl.delete()"),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Administration/RulesController.js?version=@ViewBag.JSVersion"></script>
+}

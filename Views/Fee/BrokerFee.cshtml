@@ -1,0 +1,118 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="BrokerFeeController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget("wBrokerFee", "Broker Fee Equities", new List<IHtmlString>() {
+                        Html.RenderForm("filterForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("START_DATE", "Start Date", gridPart: 3, required: true, ng_model: "ctl.filter.FEE_DT_START", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderDatetimePicker("END_DATE", "End Date", gridPart: 3, required: true, ng_model: "ctl.filter.FEE_DT_END", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderCheckbox("FLAG_ACTIVE", gridPart: 3, label: "Active", ng_model: "ctl.filter.FLAG_ACTIVE"),
+                                Html.RenderSelect("FEE_FLOW_TYPE", SelectType.Single, label: "Fee Flow Type", gridPart: 3, ng_repeat: "vm.view.FEE_FLOW_TYPE_data", ng_model: "ctl.filter.FEE_FLOW_ID", ajax: "GetFeeFlowTypes", convertToNumber: true, required: false, ng_change: "ctl.update()")
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderSelect2("CD_CLIENTE", SelectType.Single, label: "Client", gridPart: 3, ng_repeat: "vm.view.CD_CLIENTE_data", ng_model: "ctl.filter.CD_CLIENTE", ajax: "GetClientIds", convertToNumber: true, required: false, ng_change: "ctl.update()"),
+                                Html.RenderSelect2("SYMBOL", SelectType.Single, label: "Symbol", gridPart: 3, ng_repeat: "vm.view.SYMBOL_data", ng_model: "ctl.filter.CD_NEGOCIO", ajax: "GetSymbols", convertToNumber: false, required: false, ng_change: "ctl.update()"),
+                                Html.RenderSelect2("BROKER", SelectType.Single, label: "Broker", gridPart: 3, ng_repeat: "vm.view.BROKER_data", ng_model: "ctl.filter.BROKER_ID", ajax: "GetBrokersIds", convertToNumber: true, required: false, ng_change: "ctl.update()"),
+                                Html.RenderSelect("MARKET", SelectType.Single, label: "Market", gridPart: 3, ng_repeat: "vm.view.MARKET_data", ng_model: "ctl.filter.FEE_MARKET_ID", ajax: "GetMarkets", convertToNumber: true, required: false, ng_change: "ctl.update()")
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderSelect("CHANNEL", SelectType.Single, label: "Channel", gridPart: 3, ng_repeat: "vm.view.CHANNEL_data", ng_model: "ctl.filter.CHANNEL_ID", ajax: "GetChannels", convertToNumber: true, ng_change: "ctl.update()"),
+                                Html.RenderSelect("FEE_TYPE", SelectType.Single, label: "Fee Type", gridPart: 3, ng_repeat: "vm.view.FEE_TYPE_data", ng_model: "ctl.filter.FEE_CALC_ID", ajax: "GetFeeTypes", convertToNumber: true, ng_change: "ctl.update()"),
+                                Html.RenderTextbox("FACTOR", "Factor", gridPart: 3, type: TextboxType.Text, ng_model: "ctl.filter.FEE_VL_FACTOR", decimalScale: 4, positiveOnly: true),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 3, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" )
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtBrokerFee", new List<DataGridOptions>() {
+                                        new DataGridOptions() { Id = "FEE_ID", ColumnName = "ID", Sortable = true, Expand = true, isKey = true, Order = "asc" },
+                                        new DataGridOptions() { Id = "CLIENTE", Sortable = true, ColumnName = "Client Name" },
+                                        new DataGridOptions() { Id = "CD_NEGOCIO", ColumnName = "Symbol", Sortable = true },
+                                        new DataGridOptions() { Id = "FEE_MARKET", ColumnName = "Market Type", HidePhone = true, HideTablet = false, Sortable = true  },
+                                        new DataGridOptions() { Id = "BROKER", ColumnName = "Broker", Sortable = true, HidePhone = true, HideTablet = true, NoWrap = true },
+                                        new DataGridOptions() { Id = "CHANNEL", ColumnName = "Channel", Sortable = true, HidePhone = true, HideTablet = true },
+                                        new DataGridOptions() { Id = "FEE_TYPE", ColumnName = "Fee Type", Sortable = true, HidePhone = true, HideTablet = true },
+                                        new DataGridOptions() { Id = "FEE_DT_START", ColumnName = "Start Date", Sortable = true, HidePhone = true, HideTablet = true, Type = ColumnType.Date },
+                                        new DataGridOptions() { Id = "FEE_DT_END", ColumnName = "End Date", Sortable = true, HidePhone = true, HideTablet = true, Type = ColumnType.Date },
+                                        new DataGridOptions() { Id = "FEE_DT_UPDATE", ColumnName = "Updated Date", Sortable = true, HidePhone = true, HideTablet = true, Type = ColumnType.Date },
+                                        new DataGridOptions() { Id = "FEE_STATUS", ColumnName = "Status", Sortable = true, HidePhone = true, HideTablet = true },
+                                        new DataGridOptions() { Id = "FEE_VL_FACTOR", ColumnName = "Factor", Sortable = true, HidePhone = true, HideTablet = true },
+                                        new DataGridOptions() { Id = "FEE_FLOW_NAME", ColumnName = "Fee Flow Type", Sortable = true, HidePhone = true, HideTablet = true },
+                                        new DataGridOptions() { Id = "FEE_FLOW_ID", ColumnName = "Fee Flow Type", Sortable = true, HidePhone = true, HideTablet = true, Hidden = true },
+                                        new DataGridOptions() { Id = "FEE_INITIAL_VOLUMN", ColumnName = "Start Volumn", Sortable = true, HidePhone = true, HideTablet = true, Type = ColumnType.Currency },
+                                        new DataGridOptions() { Id = "FEE_FINAL_VOLUMN", ColumnName = "End Volumn", Sortable = true, HidePhone = true, HideTablet = true, Type = ColumnType.Currency }
+                                        },
+                                        actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.modify", Color = ButtonColor.Warning, Icon = "edit" }},
+                                        itemsPerPage: 10,
+                                        postData: "FEE_ID: '', FEE_DT_START: '', FEE_DT_END: '', CD_CLIENTE: '', CD_NEGOCIO: '', FEE_MARKET_ID: '', CHANNEL_ID: '', FEE_CALC_ID: '', BROKER_ID: '', FEE_VL_FACTOR: '', FEE_DC_POINTS: '', FEE_STATUS: true, FEE_FLOW_ID: '', FEE_INITIAL_VOLUMN: '', FEE_FINAL_VOLUMN: ''",
+                                        ajax: "GetBrokerFeeView",
+                                        columnFilter: true )
+                                })
+                            })
+                        })
+                    },
+                    new List<IHtmlString>() { Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "plus", label: "Add", ng_click: "ctl.new()") }
+                )
+
+                @Html.RenderModal("gridEditModal", "Broker Fee", new List<IHtmlString>() {
+                    Html.RenderForm("editForm",
+                        new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderTextbox("FEE_ID", "ID", gridPart: 2, maxLength:10, ng_model: "ctl.editItem.FEE_ID", enable: false),
+                                Html.RenderDatetimePicker("FEE_DT_START", "Start Date", gridPart: 5, required: true, ng_model: "ctl.editItem.FEE_DT_START", allowTime: false ),
+                                Html.RenderDatetimePicker("FEE_DT_END", "End Date", gridPart: 5, required: true, ng_model: "ctl.editItem.FEE_DT_END", allowTime: false )
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderSelect("CD_CLIENTE", SelectType.Single, label: "Client", gridPart: 4, ng_repeat: "vm.view.CD_CLIENTE_data", ng_model: "ctl.editItem.CD_CLIENTE", ajax: "GetClientIds", convertToNumber: true, required: true),
+                                Html.RenderSelect("FEE_FLOW_ID", SelectType.Single, label: "Fee Flow Type", gridPart: 4, ng_repeat: "vm.view.FEE_FLOW_ID_data", ng_model: "ctl.editItem.FEE_FLOW_ID", ajax: "GetFeeFlowTypes", convertToNumber: true, required: true, ng_change:"ctl.changeFeeFlowType()"),
+                                Html.RenderSelect("CD_NEGOCIO", SelectType.Single, label: "Symbol", gridPart: 4, ng_repeat: "vm.view.CD_NEGOCIO_data", ng_model: "ctl.editItem.CD_NEGOCIO", ajax: "GetSymbols", convertToNumber: false, required: false)
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderSelect("FEE_MARKET_ID", SelectType.Single, label: "Market Type", gridPart: 4, ng_repeat: "vm.view.FEE_MARKET_ID_data", ng_model: "ctl.editItem.FEE_MARKET_ID", ajax: "GetMarkets", convertToNumber: true, required: true),
+                                Html.RenderSelect("CHANNEL_ID", SelectType.Single, label: "Channel", gridPart: 4, ng_repeat: "vm.view.CHANNEL_ID_data", ng_model: "ctl.editItem.CHANNEL_ID", ajax: "GetChannels", convertToNumber: true, required: true),
+                                Html.RenderSelect("FEE_CALC_ID", SelectType.Single, label: "Fee Type", gridPart: 4, ng_repeat: "vm.view.FEE_CALC_ID_data", ng_model: "ctl.editItem.FEE_CALC_ID", ajax: "GetFeeTypes", convertToNumber: true, required: true )
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderSelect("BROKER_ID", SelectType.Single, label: "Broker", gridPart: 4, ng_repeat: "vm.view.BROKER_ID_data", ng_model: "ctl.editItem.BROKER_ID", ajax: "GetBrokersIds", convertToNumber: true, required: true),
+                                Html.RenderTextbox("FEE_VL_FACTOR", "Factor", gridPart: 4, type: TextboxType.Text, ng_model: "ctl.editItem.FEE_VL_FACTOR", required: true, decimalScale: 12, positiveOnly: true),
+                                Html.RenderCheckbox("FEE_STATUS", gridPart: 4, label: "Active", ng_model: "ctl.editItem.FEE_STATUS")
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderTextbox("FEE_INITIAL_VOLUMN", "Start Volumn", gridPart: 4, required: false, ng_model: "ctl.editItem.FEE_INITIAL_VOLUMN", type: TextboxType.Text, decimalScale: 2, positiveOnly: true, enable: false, maxLength: 20 ),
+                                Html.RenderTextbox("FEE_FINAL_VOLUMN", "End Volumn", gridPart: 4, required: false, ng_model: "ctl.editItem.FEE_FINAL_VOLUMN", type: TextboxType.Text, decimalScale: 2, positiveOnly: true, enable: false, maxLength: 20)
+                            }),
+                        },
+                        new List<IHtmlString>() {
+                            Html.RenderButton(ButtonType.Submit, ButtonColor.Primary, label: "Save", ng_click: "ctl.save()"),
+                            Html.RenderButton(ButtonType.Button, ButtonColor.Danger, label: "Cancel", attributes:"data-dismiss='modal'")
+                        }
+                    )
+                }, @class: "no-padding")
+                    @Html.RenderModal("gridDeleteModal", "Delete Client Restriction", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want delete this record?</p>")
+                }, new List<IHtmlString>() {
+                                Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Delete", ng_click: "ctl.delete()"),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Fee/BrokerFeeController.js?version=@ViewBag.JSVersion"></script>
+}

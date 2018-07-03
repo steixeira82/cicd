@@ -1,0 +1,60 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="BatchesController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+
+                @Html.RenderWidget("wBatches", "Batches", new List<IHtmlString>() {
+                    Html.RenderDataTable("dtBatch", new List<DataGridOptions>() { new DataGridOptions() { Id = "BATCH_ID", ColumnName = "ID", Sortable = true, Expand = true, isKey = true },
+                        new DataGridOptions() { Id = "CD_CLIENTE", ColumnName = "Client ID", Sortable = true },
+                        new DataGridOptions() { Id = "NM_CLIENTE", ColumnName = "Client Name", Sortable = true, HidePhone = true, HideTablet = false },
+                        new DataGridOptions() { Id = "CD_COMMOD", ColumnName = "Commodity", Sortable = false, HidePhone = true, HideTablet = false  },
+                        new DataGridOptions() { Id = "MARKET_NAME", ColumnName = "Market", Sortable = true, HidePhone = true, HideTablet = true },
+                        }, actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.modify", Color = ButtonColor.Warning, Icon = "edit" },
+                                                                    new DataGridActions() { Ng_click = "ctl.remove", Color = ButtonColor.Danger, Icon = "trash-o" }}
+                        , itemsPerPage: 15, ajax: "GetBatchesView")
+                    }, new List<IHtmlString>() { Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "plus", label: "Add", ng_click: "ctl.new()") }
+                )
+
+                @Html.RenderModal("gridEditModal", "Edit Batch", new List<IHtmlString>() {
+                    Html.RenderForm("editForm", 
+                        new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderTextbox("BATCH_ID", "ID", gridPart: 2, maxLength:10, ng_model: "ctl.editItem.BATCH_ID", enable: false),
+                                Html.RenderSelect("CD_CLIENTE", SelectType.Single, label: "Client ID", gridPart: 6, ng_repeat: "vm.view.CD_CLIENTE_data", ng_model: "ctl.editItem.CD_CLIENTE", ajax: "GetClientIds", convertToNumber: true, required: true),
+                                Html.RenderTextbox("CD_COMMOD", "Commodity", gridPart: 4, maxLength: 100, ng_model: "ctl.editItem.CD_COMMOD")
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderSelect("MARKET_ID", SelectType.Single, label: "Market", gridPart: 12, ng_repeat: "vm.view.MARKET_ID_data", ng_model: "ctl.editItem.MARKET_ID", ajax: "GetMarketIds", convertToNumber: true, required: true) 
+                            })},
+                        new List<IHtmlString>() {
+                            Html.RenderButton(ButtonType.Submit, ButtonColor.Primary, label: "Save", ng_click: "ctl.save()"),
+                            Html.RenderButton(ButtonType.Button, ButtonColor.Danger, label: "Cancel", attributes:"data-dismiss='modal'") 
+                        }
+                    )
+                }, @class: "no-padding")
+                @Html.RenderModal("gridDeleteModal", "Delete Batch", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want delete this record?</p>")
+                }, new List<IHtmlString>() {
+                                Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Delete", ng_click: "ctl.delete()"),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+            </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/Register/BatchesController.js"></script>
+}

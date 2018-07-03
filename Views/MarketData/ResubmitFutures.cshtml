@@ -1,0 +1,130 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="ResubmitFuturesController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget(
+                    "wResubmit",
+                    "Resubmit Futures",
+                    new List<IHtmlString>() {
+                        Html.RenderForm("informForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("TRANSACTIONDATE", "Trade Date", gridPart: 2, required: true, ng_model: "ctl.filter.TRANSACTIONDATE", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderSelect("TRADE_FLAG_AFTER", SelectType.Single, label: "Source", gridPart: 2, required: true, options: new Dictionary<string,string>() { {"1", "Orders"}, {"2", "Fin."} } , ng_model: "ctl.filter.TRADE_FLAG_AFTER", convertToNumber: true, ng_change: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 2, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" )
+                            })
+                        }),
+                        Html.RenderFieldset(new List<IHtmlString>() {
+                            Html.RenderDataTable("dtResubmit",
+                                new List<DataGridOptions>() {
+                                            new DataGridOptions() { Id = "ROWID_NUM", ColumnName = "ROW ID", Sortable = true },
+                                            new DataGridOptions() { Id = "BVMFID", ColumnName = "Internal ID", Sortable = true },
+                                            new DataGridOptions() { Id = "TRANSACTIONDATE", ColumnName = "Transaction Date", Sortable = true },
+                                            new DataGridOptions() { Id = "EXPIRATIONDATE", ColumnName = "Expiry Date", Sortable = true },
+                                            new DataGridOptions() { Id = "VALUEDATESETTLEMENT", ColumnName = "Settlement", Sortable = true },
+                                            new DataGridOptions() { Id = "OPTIONTYPE", ColumnName = "Option Type", Sortable = true },
+                                            new DataGridOptions() { Id = "EXERCISEPRICE", ColumnName = "Excercise Price", Sortable = true },
+                                            new DataGridOptions() { Id = "QUANTITY", ColumnName = "Quantity", Sortable = true },
+                                            new DataGridOptions() { Id = "MARKET", ColumnName = "Market", Sortable = true },
+                                            new DataGridOptions() { Id = "SYMBOL_FULL", ColumnName = "Symbol", Sortable = true },
+                                            new DataGridOptions() { Id = "BUYSELLCODE", ColumnName = "Side", Sortable = true },
+                                            new DataGridOptions() { Id = "EXTERNALNUMBERMEMBER", ColumnName = "Trade Number", Sortable = true },
+                                            new DataGridOptions() { Id = "ADJUSTMENTVALUE", ColumnName = "Adjustment Value", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "CLEARINGFEEDAYT", ColumnName = "Clearing Fee", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "EXCHANGEBROKERFEE", ColumnName = "Broker Fee", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "EXCHANGEBROKERFEEDT", ColumnName = "Broker Fee DT", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "TRANSACTIONPRICEX", ColumnName = "Price", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "ACCOUNTNUMBER", ColumnName = "Client", Sortable = true },
+                                            new DataGridOptions() { Id = "EXTERNALMEMBER", ColumnName = "Client Name", Sortable = true, NoWrap = true },
+                                            new DataGridOptions() { Id = "TRADERINITIALS", ColumnName = "Trader Initials", Sortable = true },
+                                            new DataGridOptions() { Id = "BROKERINITIALSID", ColumnName = "Initials ID", Sortable = true },
+                                            new DataGridOptions() { Id = "TRADE_FLAG_AFTER", ColumnName = "TRADE_FLAG_AFTER", Sortable = true, Hidden = true },
+                                            new DataGridOptions() { Id = "ROLLOVERTAX", ColumnName = "Rollover Tax", Sortable = true, Type = ColumnType.Decimal2 }
+                                },
+                                selectableKey: "ROWID_NUM",
+                                selectEvent: "ctl.select()",
+                                showPaging: true,
+                                itemsPerPage: 10,
+                                autoWidth: true,
+                                ajax: "GetResubmitFutures",
+                                postData: "TRANSACTIONDATE: moment().format('DD/MM/YYYY'), TRADE_FLAG_AFTER: 1",
+                                serverSide: true,
+                                scrollX: true,
+                                columnFilter: true
+                            ),
+                        }),
+                        Html.RenderFieldset(new List<IHtmlString>() {
+                            Html.RenderDataTable("dtSelectedResubmit",
+                                new List<DataGridOptions>() {
+                                    new DataGridOptions() { Id = "ROWID_NUM", ColumnName = "ROW ID", Sortable = true, isKey = true, keytype = KeyType.String },
+                                    new DataGridOptions() { Id = "BVMFID", ColumnName = "Internal ID", Sortable = true },
+                                            new DataGridOptions() { Id = "TRANSACTIONDATE", ColumnName = "Transaction Date", Sortable = true },
+                                            new DataGridOptions() { Id = "EXPIRATIONDATE", ColumnName = "Expiry Date", Sortable = true },
+                                            new DataGridOptions() { Id = "VALUEDATESETTLEMENT", ColumnName = "Settlement", Sortable = true },
+                                            new DataGridOptions() { Id = "OPTIONTYPE", ColumnName = "Option Type", Sortable = true },
+                                            new DataGridOptions() { Id = "EXERCISEPRICE", ColumnName = "Excercise Price", Sortable = true },
+                                            new DataGridOptions() { Id = "QUANTITY", ColumnName = "Quantity", Sortable = true },
+                                            new DataGridOptions() { Id = "MARKET", ColumnName = "Market", Sortable = true },
+                                            new DataGridOptions() { Id = "SYMBOL_FULL", ColumnName = "Symbol", Sortable = true },
+                                            new DataGridOptions() { Id = "BUYSELLCODE", ColumnName = "Side", Sortable = true },
+                                            new DataGridOptions() { Id = "EXTERNALNUMBERMEMBER", ColumnName = "Trade Number", Sortable = true },
+                                            new DataGridOptions() { Id = "ADJUSTMENTVALUE", ColumnName = "Adjustment Value", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "CLEARINGFEEDAYT", ColumnName = "Clearing Fee", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "EXCHANGEBROKERFEE", ColumnName = "Broker Fee", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "EXCHANGEBROKERFEEDT", ColumnName = "Broker Fee DT", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "TRANSACTIONPRICEX", ColumnName = "Price", Sortable = true, Type = ColumnType.Decimal2 },
+                                            new DataGridOptions() { Id = "ACCOUNTNUMBER", ColumnName = "Client", Sortable = true },
+                                            new DataGridOptions() { Id = "EXTERNALMEMBER", ColumnName = "Client Name", Sortable = true, NoWrap = true },
+                                            new DataGridOptions() { Id = "TRADERINITIALS", ColumnName = "Trader Initials", Sortable = true },
+                                            new DataGridOptions() { Id = "BROKERINITIALSID", ColumnName = "Initials ID", Sortable = true },
+                                            new DataGridOptions() { Id = "TRADE_FLAG_AFTER", ColumnName = "TRADE_FLAG_AFTER", Sortable = true, Hidden = true },
+                                            new DataGridOptions() { Id = "ROLLOVERTAX", ColumnName = "Rollover Tax", Sortable = true, Type = ColumnType.Decimal2 },
+                                },
+                                actions: new List<DataGridActions>() { new DataGridActions() { Ng_click = "ctl.unselect", Color = ButtonColor.Danger, Icon = "times" } },
+                                showPaging: true,
+                                showExport: false,
+                                autoWidth: false,
+                                ajax: "GetResubmitSelectedFutures",
+                                postData: "BVMFIDs: ['']",
+                                serverSide: true,
+                                columnFilter: true,
+                                scrollX: true
+                        )
+                    }, legend: "Selected Items")
+                    },
+                    toolbarItens: new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                    },
+                    footerItems: new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 2, size: ButtonSize.md, label: "Resubmit", ng_click: "ctl.confirmResubmit()" )
+                    }
+                )
+                    @Html.RenderModal("confirmResubmit", "Confirm Resubmit", new List<IHtmlString>() {
+                    Html.RenderHTML("<p>Are you sure you want to resubmit trades?</p>")
+                       }, new List<IHtmlString>() {
+                           Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Resubmit", ng_click: "ctl.resubmit()"),
+                           Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                })
+
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/MarketData/ResubmitFuturesController.js?version=@ViewBag.JSVersion"></script>
+
+}

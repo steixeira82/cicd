@@ -1,0 +1,128 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="DropCopyController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderShareData("momentjsLongDateTimeFormat", (string)ViewBag.momentjsLongDateTimeFormat)
+                    @Html.RenderWidget(
+                    "wDropCopy",
+                    "DropCopy",
+                    new List<IHtmlString>() {
+                        Html.RenderHTML("<h3 class='alert alert-info' ng-cloak>{{ ctl.refreshTime }}</h3>"),
+                        Html.RenderForm("dropcopyForm", new List<IHtmlString>() {
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderDatetimePicker("DC_TRADEDATE", "Trade Date", gridPart: 2, required: true, ng_model: "ctl.filter.DC_TRADEDATE", allowTime: false, ng_change: "ctl.update()" ),
+                                Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 3, size: ButtonSize.md, label: "Search", ng_click: "ctl.update()" )
+                            }),
+                            Html.RenderRow(new List<IHtmlString>() {
+                                Html.RenderFieldset(new List<IHtmlString>() {
+                                    Html.RenderDataTable("dtDropCopy",
+                                        new List<DataGridOptions>() {
+                                            new DataGridOptions() { Id = "DC_SOURCE_FILE", ColumnName = "Source File", Sortable = true, NoWrap = true },
+                                            new DataGridOptions() { Id = "DC_TRADEDATE", ColumnName = "Trade Date", Sortable = true, NoWrap = true },
+                                            new DataGridOptions() { Id = "DC_TRANSACTTIME", ColumnName = "Transaction Time", Sortable = true, NoWrap = true },
+                                            new DataGridOptions() { Id = "DC_SECURITYEXCHANGE", ColumnName = "Security Exchange", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_ORDERID", ColumnName = "Order ID", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_EXECID", ColumnName = "Exec ID", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_EXECREFID", ColumnName = "Exec ref ID", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_EXECTYPE", ColumnName = "Exec Type", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_ORDSTATUS", ColumnName = "Order Status", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_SYMBOL", ColumnName = "Symbol", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_SECURITYID", ColumnName = "Security ID", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_SECURITYIDSOURCE", ColumnName = "Security ID Source", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_SIDE", ColumnName = "Side", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_CURRENCY", ColumnName = "Currency", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_LASTPX", ColumnName = "Last PX", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_LASTQTY", ColumnName = "Last Quantity", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_LEAVESQTY", ColumnName = "Leaves Quantity", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_CUMQTY", ColumnName = "Cum Quantity", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_AVGPX", ColumnName = "Avg PX", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_OPLSTMSEQID", ColumnName = "OPLSTMSEQID", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_FREETEXT", ColumnName = "FREETEXT", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_SECURITYTYPE", ColumnName = "Security Type", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_MATURITYMONTHYEAR", ColumnName = "Maturiry Month Year", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_PUTORCALL", ColumnName = "Put or Call", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_STRIKEPRICE", ColumnName = "Strike Price", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_PARTYID1", ColumnName = "Party ID1", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_PARTYID3", ColumnName = "Party ID3", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_ABN_ACCOUNT", ColumnName = "Client", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_MEMO", ColumnName = "Memo", Sortable = true, NoWrap = true },
+                                            new DataGridOptions() { Id = "DC_EXECUTIONNUMBER", ColumnName = "Execution Number", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_BROKER", ColumnName = "Broker", Sortable = true },
+                                            new DataGridOptions() { Id = "DC_UPD_INSERT", ColumnName = "Dt. Update", Sortable = true, NoWrap = true, Type = ColumnType.DateTime },
+                                            new DataGridOptions() { Id = "DC_PROCESSING_TAG", ColumnName = "DC_PROCESSING_TAG", Sortable = true, Hidden = true },
+                                        },
+                                        showPaging: true,
+                                        itemsPerPage: 10,
+                                        autoWidth: true,
+                                        ajax: "GetDropCopy",
+                                        postData: "DC_TRADEDATE: moment().format('DD/MM/YYYY')",
+                                        serverSide: true,
+                                        scrollX: true,
+                                        columnFilter: true
+
+
+
+                                    )
+                              })
+                          })
+                        })
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs, icon: "refresh", label: "Refresh", ng_click: "ctl.update()")
+                    }
+                )
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/OpsControl/DropCopyController.js?version=@ViewBag.JSVersion"></script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

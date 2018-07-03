@@ -1,0 +1,62 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="OnlinePositionsController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderShareData("momentjsLongDateTimeFormat", (string)ViewBag.momentjsLongDateTimeFormat)
+                    @Html.RenderWidget(
+                    "wPositions",
+                    "Sinacor Positions",
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, id: "btnRefresh", gridPart: 2, size: ButtonSize.md, label: "Refresh Data", ng_click: "ctl.refreshData()" ),
+                        //Html.RenderHTML("<h3 class='alert alert-info' ng-cloak>{{ ctl.refreshTime }}</h3>"),
+                        Html.RenderDataTable("dtPositions",
+                            new List<DataGridOptions>() {
+                                new DataGridOptions() { Id = "DT_DATMOV", ColumnName = "Mov. Date", Sortable = true, HidePhone = true, HideTablet = false },
+                                new DataGridOptions() { Id = "CD_CLIENTE", Hidden = true },
+                                new DataGridOptions() { Id = "CLIENTE", ColumnName = "Client", Sortable = true, orderIndex = 1, Expand = true  },
+                                new DataGridOptions() { Id = "CD_COMMOD", ColumnName = "Ticker", Sortable = true },
+                                new DataGridOptions() { Id = "CD_MERCAD", ColumnName = "Market", Sortable = true },
+                                new DataGridOptions() { Id = "QT_DIA_ATU", ColumnName = "Opening Qty", Sortable = true, HidePhone = true, HideTablet = false, CreatedCell = @"if (cellData < 0) { $(td).addClass('red-background'); $(td).html(Math.abs(cellData)); } else { $(td).addClass('green-background'); }" },
+                                new DataGridOptions() { Id = "QTY_DAY", ColumnName = "Quantity Day", Sortable = true, HidePhone = true, HideTablet = false, CreatedCell = @"if (cellData < 0) { $(td).addClass('red-background'); $(td).html(Math.abs(cellData)); } else { $(td).addClass('green-background'); }" },
+                                new DataGridOptions() { Id = "POSITION", ColumnName = "Current Position", Sortable = true, HidePhone = true, HideTablet = false, CreatedCell = @"if (cellData < 0) { $(td).addClass('red-background'); $(td).html(Math.abs(cellData)); } else { $(td).addClass('green-background'); }" },
+                                new DataGridOptions() { Id = "FILTER", Hidden = true }
+                            },
+                            legend: new List<DataGridLegend>() {
+                                new DataGridLegend() { Css = "red-background", Description = "Short" },
+                                new DataGridLegend() { Css = "green-background", Description = "Long" },
+                                new DataGridLegend() { Text = "Filter by 'moviment'", Description = "Brings only Quantity Day > 0 records." }
+                            },
+                            showPaging: false,
+                            ajax: "GetFuturesOnlinePositionsView"
+                        )
+                    },
+                    new List<IHtmlString>() {
+                        Html.RenderButton(ButtonType.Button, ButtonColor.Primary, size: ButtonSize.xs , icon: "refresh", label: "Update", ng_click: "ctl.update()")
+                    }
+                )
+
+
+
+                </div>
+                </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/MarketData/OnlinePositionsController.js?version=@ViewBag.JSVersion"></script>
+    
+}

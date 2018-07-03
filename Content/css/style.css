@@ -1,0 +1,256 @@
+﻿.padding-top-0 {
+    padding-top: 0 !important;
+}
+
+.padding-top-5 {
+    padding-top: 5px !important;
+}
+
+.padding-bottom-0 {
+    padding-bottom: 0 !important;
+}
+
+.padding-bottom-5 {
+    padding-bottom: 5px !important;
+}
+
+.padding-left-5 {
+    padding-left: 5px !important;
+}
+
+.padding-left-10 {
+    padding-left: 10px !important;
+}
+
+.padding-right-5 {
+    padding-right: 5px !important;
+}
+
+.padding-right-10 {
+    padding-right: 10px !important;
+}
+
+.margin-top-0 {
+    margin-top: 0 !important;
+}
+
+.margin-top-5 {
+    margin-top: 5px !important;
+}
+
+.margin-bottom-0 {
+    margin-bottom: 0 !important;
+}
+
+.margin-bottom-5 {
+    margin-bottom: 5px !important;
+}
+
+.margin-left-5 {
+    margin-left: 5px !important;
+}
+
+.margin-left-10 {
+    margin-left: 10px !important;
+}
+
+.margin-right-5 {
+    margin-right: 5px !important;
+}
+
+.margin-right-10 {
+    margin-right: 10px !important;
+}
+
+.margin-right-15 {
+    margin-right: 15px !important;
+}
+
+#extr-page h4.paragraph-header {
+    width: auto;
+}
+
+#extr-page .smart-form .alert {
+    margin: 4px;
+}
+
+    #extr-page .smart-form .alert li {
+        margin-left: 14px;
+        list-style: none;
+    }
+
+        #extr-page .smart-form .alert li:before {
+            content: "";
+            font-family: FontAwesome;
+            position: absolute;
+            left: 14px;
+        }
+
+#extr-page .smart-form div + fieldset {
+    padding-top: 15px;
+}
+
+
+/* Personal CSS for ABN Amro*/
+
+/*RenderTreeview*/
+
+.treeview > ul > li {
+    border-top-width: 0px;
+    border-right-width: 0px;
+    border-bottom-width: 0px;
+    border-left-width: 0px;
+    padding:3px;
+}
+
+/* End RenderTreeview*/
+
+/* Parsley */
+
+input.parsley-success,
+select.parsley-success,
+textarea.parsley-success {
+  color: #468847 !important;
+  background-color: #DFF0D8 !important;
+  border: 1px solid #468847 !important;
+}
+
+input.parsley-error,
+select.parsley-error,
+textarea.parsley-error {
+  color: #B94A48 !important;
+  background-color: #F2DEDE !important;
+  border: 1px solid #B94A48 !important;
+}
+
+.parsley-errors-list {
+  margin: 2px 0 3px;
+  padding: 0;
+  list-style-type: none;
+  font-size: 0.9em;
+  line-height: 0.9em;
+  opacity: 0;
+
+  transition: all .3s ease-in;
+  -o-transition: all .3s ease-in;
+  -moz-transition: all .3s ease-in;
+  -webkit-transition: all .3s ease-in;
+}
+
+.parsley-errors-list.filled {
+  opacity: 1;
+}
+
+
+/* End Parsley */
+
+/* DataTable */
+
+.hideColumn {
+    display: none !important;
+}
+
+.green-background {
+    background-color: rgba(217, 226, 197, 0.5) !important;
+}
+
+.red-background {
+    background-color: rgba(240, 128, 128, 0.5) !important;
+}
+
+.yellow-background {
+    background-color: rgba(255, 193, 7, 0.5) !important;
+}
+
+.blue-background {
+    background-color: rgba(125, 165, 192, 0.5) !important;
+}
+
+.columnNowrap {
+    white-space: nowrap;
+}
+
+
+/* End DataTable */
+
+
+.fieldset-buttons {
+		position: absolute;
+		top: 5px;
+		right: 0px;
+		display: block;
+		height: auto;
+		z-index: 99;
+		opacity: .9;
+	}
+
+/* Modal-style */
+
+.modal-dialog {
+  position: relative;
+}
+
+.modal-content.ui-resizable {
+  overflow-y: scroll;
+  position: static;
+}
+
+/* End Modal-style */
+
+.vis-item.greenDashed {
+    background-color: rgba(144, 238, 144, 0.31);  
+    border-width: 1px !important;
+    border-color: green;
+    border-top-style: dashed !important;
+    border-right-style: none !important;
+    border-bottom-style: dashed !important;
+    border-left-style: dashed !important;
+}
+
+.vis-item.greyDashed {
+    border-color: grey;
+    border-width: 1px !important;
+    background-color: rgba(96, 125, 139, 0.15);  
+    border-top-style: dashed !important;
+    border-right-style: dashed !important;
+    border-bottom-style: dashed !important;
+    border-left-style: none !important;
+}
+
+.vis-item.orange {
+    border-color: #463b2d;
+    border-width: 1px !important;
+    background-color: #d0dbb7;  
+}
+
+.vis-item.red {
+    border-color: darkred;
+    background-color: red;
+}
+
+.progress-wrapper {
+      background: white;
+      width: 100%;
+      height: 18px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+/*.progress {
+    height: 100%;
+    width: 60%;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    background: #63ed63;
+}*/
+
+.progress-label {
+    position: relative;
+    z-index: 1;
+}
+
+.checkboxC4i {
+    padding-top: 5px !important;
+}

@@ -1,0 +1,34 @@
+﻿@{
+    ViewBag.scripts = new List<string>();
+    ViewBag.bundles = new List<string>();
+    ViewBag.directives = new List<string>();
+    ViewBag.modules = new List<string>();
+}
+
+<div id="content" ng-app="App" ng-controller="NewsController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                    @Html.RenderWidget("wNews", "RSS Negotiation Report", new List<IHtmlString>() {
+                    Html.RenderDataTable("dtNews", new List<DataGridOptions>() { 
+                        new DataGridOptions() { Id = "TitleLink", ColumnName = "Title", Sortable = false },
+                        new DataGridOptions() { Id = "Description", ColumnName = "Description", Sortable = false },
+                        new DataGridOptions() { Id = "PubDate", ColumnName = "Date", Sortable = false },
+                        }, itemsPerPage: 15, ajax: "GetNewsTradingSupport", autoWidth: true)})
+
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/News/NewsController.js?version=@ViewBag.JSVersion"></script>
+}

@@ -1,0 +1,166 @@
+﻿@{
+    ViewBag.menuScripts = new List<string>();
+    ViewBag.updateItems = new List<string>();
+    ViewBag.groupItems = new List<string>();
+}
+<!-- Left panel : Navigation area -->
+<!-- Note: This width of the aside area can be adjusted through LESS variables -->
+<aside id="left-panel">
+    <div id="menudiv" ng-controller="MenuController">
+        <!-- User info -->
+        @{ Html.RenderPartial("_CurrentUser"); }
+        <!-- end user info -->
+        <!-- NAVIGATION : This navigation is also responsive
+
+        To make this navigation dynamic please make sure to link the node
+        (the reference to the nav > ul) after page load. Or the navigation
+        will not initialize.
+        -->
+        <nav>
+            <!-- NOTE: Notice the gaps after each icon usage <i></i>..
+            Please note that these links work a bit different than
+            traditional href="" links. See documentation for details.
+            -->
+
+            <ul>
+                @Html.RenderMenu("Dashboard", "dashboard", "home", "home", "index")
+
+                @Html.RenderMenu("Administration", "admin", "gears", "administration", childMenuItens: new List<IHtmlString>() {
+                            Html.RenderMenu("Users", "users_menu", null, "administration", "users"),
+                            Html.RenderMenu("Rules", "rules_menu", null, "administration", "rules"),
+                            Html.RenderMenu("Groups", "groups_menu", null, "administration", "groups"),
+                            Html.RenderMenu("Audits", "audits_menu", null, "administration", "audits"),
+                            Html.RenderMenu("Jobs", "jobs_menu", null, "administration", "jobs")
+                })
+                @Html.RenderMenu("Register Control", "registrer_control_menu", "pencil", "register", childMenuItens: new List<IHtmlString>() {
+                            Html.RenderMenu("Clients", "client_menu", null, "register", "clients"),
+                            Html.RenderMenu("Client Restrictions", "client_restrictions_menu", null, "register", "clientrestrictions"),
+                            Html.RenderMenu("Brokers", "broker_menu", null, "register", "brokers"),
+                            Html.RenderMenu("DropCopy Register", "dropcopy_menu", null, "register", "dropcopyregister")
+                })
+                @Html.RenderMenu("Market Data", "market_data_menu", "database", "marketdata",
+                    childMenuItens: new List<IHtmlString>() {
+                        Html.RenderMenu("Futures", "futures_menu", null, "marketdata",
+                            childMenuItens: new List<IHtmlString>() {
+                                Html.RenderMenu("Online Positions", "online_positions_menu", null, "marketdata", "onlinepositions"),
+                                Html.RenderMenu("Futures MICS", "futures_mics_menu", null, "marketdata", "futuresmics"),
+                                Html.RenderMenu("Resubmit MICS", "futures_resubmit_menu", null, "marketdata", "resubmitfutures")
+                            },
+                            childViews: new string[] { "onlinepositions", "futuresmics", "resubmitfutures" }
+                        ),
+                        Html.RenderMenu("Equities", "equities_menu", null, "marketdata",
+                            childMenuItens: new List<IHtmlString>() {
+                                Html.RenderMenu("Equities MICS", "equities_mics_menu", null, "marketdata", "equitiesmics"),
+                                Html.RenderMenu("Resubmit MICS", "resubmit_mics_menu", null, "marketdata", "resubmitmics"),
+                                Html.RenderMenu("Control Positions", "control_positions_menu", null, "marketdata", "controlpositions"),
+                                Html.RenderMenu("Volumns", "volumns_menu", null, "marketdata", "volumns")
+                            },
+                            childViews: new string[] { "equitiesmics", "resubmitmics", "controlpositions" }
+                        ),
+                         Html.RenderMenu("Prices", "prices_menu", null, "marketdata",
+                            childMenuItens: new List<IHtmlString>() {
+                                Html.RenderMenu("Equities", "prices_menu_equities", null, "marketdata", "pricesequities")
+                            }
+                        ),
+                    }
+                )
+                @Html.RenderMenu("Ops Control", "ops_control_menu", "desktop", "OpsControl", childMenuItens: new List<IHtmlString>() {
+                    Html.RenderMenu("CSM Ops", "csm_ops_menu", null, "opscontrol", "csmops"),
+                        Html.RenderMenu("Finance", "finance_menu", null, "opscontrol",
+                            childMenuItens: new List<IHtmlString>() {
+                                Html.RenderMenu("Integration", "finance_integration_menu", null, "opscontrol", "financeintegration"),
+                                Html.RenderMenu("Resubmit", "finance_resubmit_menu", null, "opscontrol", "financeresubmit")
+                            },
+                            childViews: new string[] { "financeintegration", "financeresubmit" }
+                        ),
+                        Html.RenderMenu("Imbarq", "imbarq_menu", null, "opscontrol",
+                            childMenuItens: new List<IHtmlString>() {
+                                Html.RenderMenu("Custody Balance", "imbarq_custody_balance_menu", null, "opscontrol", "imbarqcustodybalance"),
+                                Html.RenderMenu("Position", "imbarq_position_menu", null, "opscontrol", "imbarqposition"),
+                                Html.RenderMenu("Short Sales", "imbarq_short_sales_menu", null, "opscontrol", "imbarqshortsales")
+                            },
+                            childViews: new string[] { "imbarqcustodybalance", "imbarqposition", "imbarqshortsales" }
+                        ),
+                    Html.RenderMenu("GiveUp", "giveup_menu", null, "opscontrol", "giveup"),
+                    Html.RenderMenu("Matching", "matching_menu", null, "opscontrol", "matching"),
+                    Html.RenderMenu("CMS", "cms_menu", null, "opscontrol", "cms"),
+                    Html.RenderMenu("DropCopy", "dropcopy_tasc_menu", null, "opscontrol", "dropcopy"),
+                    Html.RenderMenu("EOD Assist", "eod_assist_menu", null, "opscontrol", "eodassist")
+
+                })
+
+                @Html.RenderMenu("Checklist", "checklist_menu", "check-square-o", "Checklist", notificationGroup: "Checklist", childMenuItens: new List<IHtmlString>() {
+                    Html.RenderMenu("E-mail Groups", "email_groups_menu", null, "checklist", "emailgroups"),
+                    Html.RenderMenu("Processes", "processes_menu", null, "checklist", "processes"),
+                    Html.RenderMenu("Executions", "process_execution_menu", null, "checklist", "processexecutions", ajaxNotifications: "/Home/GetPendingExecutionQtd", notificationGroup: "Checklist"),
+                    Html.RenderMenu("Confirmations", "process_confirmation_menu", null, "checklist", "confirmations")
+                })
+
+                @Html.RenderMenu("Fees", "fees_menu", "tags", "Fee", notificationGroup: "Fee", childMenuItens: new List<IHtmlString>() {
+                    
+                    Html.RenderMenu("Broker Fee", "broker_fee_menu", null, "Fee",
+                            childMenuItens: new List<IHtmlString>() {
+                                Html.RenderMenu("Broker Fee Eq.", "broker_fee_menu", null, "fee", "brokerfee"),
+                                Html.RenderMenu("Fee Process Eq.", "fee_proc_menu", null, "fee", "feeproc"),
+                                Html.RenderMenu("Fee Report", "fee_inform_menu", null, "fee", "feeinform"),
+                                Html.RenderMenu("Fee Discount", "fee_maintainance_menu", null, "fee", "feemaintainance"),
+                                Html.RenderMenu("Fee Discount Group", "fee_maintainance_group_menu", null, "fee", "feemaintainancegroup"),
+                                Html.RenderMenu("Fee Change Nota", "fee_change_nota_menu", null, "fee", "feechangenota")
+                            },
+                            childViews: new string[] { "brokerfee", "feeproc", "feeinform", "feemaintainance", "feemaintainancegroup", "feechangenota" }
+                        ),
+                    Html.RenderMenu("Carrying Fee", "carrying_fee_menu", null, "CarryingFee",
+                            childMenuItens: new List<IHtmlString>() {
+                                Html.RenderMenu("Policies", "carrying_fee_policies", null, "CarryingFee", "policies"),
+                                Html.RenderMenu("Report Invoice", "carrying_report_invoice", null, "CarryingFee", "ReportInvoice")
+                            },
+                            childViews: new string[] { "policies" }
+                        )
+                })
+
+                @Html.RenderMenu("News", "news_menu", "rss", "News", ajaxNotifications: "/News/GetNewNews", notificationGroup: "NewNews", childMenuItens: new List<IHtmlString>() {
+                    @Html.RenderMenu("RSS Negotiation Report", "news_trading_support_menu", null, "News", "NewsTradingSupport", notificationGroup: "NewNews")
+                })
+            </ul>
+
+        </nav>
+    </div>
+    <span class="minifyme" data-action="minifyMenu">
+        <i class="fa fa-arrow-circle-left hit"></i>
+    </span>
+
+</aside>
+<!-- END NAVIGATION -->
+
+<script type="text/javascript">
+
+    var menuapp = angular.module('Menu', []);
+    menuapp.controller('MenuController', function ($interval, $scope, $http) {
+        @foreach (string script in ViewBag.menuScripts)
+        {
+            @Html.Raw(script)
+        }
+
+
+
+        $scope.menu_update = function () {
+            @foreach (string script in ViewBag.groupItems)
+               {
+                   @Html.Raw(script)
+               }
+            @foreach (string script in ViewBag.updateItems)
+               {
+                   @Html.Raw(script)
+               }
+        };
+
+
+        $scope.menu_update();
+        $interval($scope.menu_update, 10000);
+
+
+    });
+    angular.bootstrap(document.getElementById("menudiv"), ['Menu']);
+
+
+</script>

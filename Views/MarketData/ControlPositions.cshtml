@@ -1,0 +1,78 @@
+﻿@{ ViewBag.scripts = new List<string>();
+ ViewBag.bundles = new List<string>();
+ ViewBag.directives = new List<string>();
+ ViewBag.modules = new List<string>();
+}
+<!-- MAIN CONTENT -->
+<div id="content" ng-app="App" ng-controller="ControlPositionsController as ctl">
+    <div ng-controller="viewController as vm">
+        <section id="widget-grid" class="">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    @Html.RenderWidget(
+                        "wControlPositions",
+                        "Control Positions",
+                        new List<IHtmlString>() {
+                            Html.RenderForm("importForm", new List<IHtmlString>() {
+                                Html.RenderRow(new List<IHtmlString>() {
+                                    Html.RenderButton(ButtonType.Button, ButtonColor.Danger, gridPart: 1, size: ButtonSize.md, label: "Get Template", href: "DownloadTemplate?filename=ControlPosition_template.xlsx" ),
+                                    Html.RenderFileUpload("UPLOAD", "Upload Excel", "UploadExcel", gridPart: 8, success: "ctl.importSuccess", error: "ctl.importError" ),
+                                    Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 3, size: ButtonSize.md, label: "Upload", ng_click: "ctl.upload()" )
+                                })
+                            }),
+                            Html.RenderFieldset(new List<IHtmlString>() {
+                                Html.RenderDataTable("dtImportedFile",
+                                    new List<DataGridOptions>() {
+                                        new DataGridOptions() { Id = "DT_PREGAO", ColumnName = "Trade Date", Sortable = true },
+                                        new DataGridOptions() { Id = "CD_NATOPE", ColumnName = "Side", Sortable = true },
+                                        new DataGridOptions() { Id = "QT_NEGOCIO", ColumnName = "Quantity", Sortable = true },
+                                        new DataGridOptions() { Id = "CD_CLIENTE", ColumnName = "Client", Sortable = true },
+                                        new DataGridOptions() { Id = "VL_NEGOCIO", ColumnName = "Price", Sortable = true, NoWrap = true },
+                                        new DataGridOptions() { Id = "DT_LIQUIDACAO", ColumnName = "Dt. Settelment", Sortable = true, Type = ColumnType.Date },
+                                        new DataGridOptions() { Id = "OPTION_TYPE", ColumnName = "Option Type", Sortable = true},
+                                        new DataGridOptions() { Id = "EXERCISE_PRICE", ColumnName = "Exercise Price", Sortable = true },
+                                        new DataGridOptions() { Id = "HALT_FLAG", ColumnName = "Halt Flag", Sortable = true },
+                                        new DataGridOptions() { Id = "MICS_SYMBOL", ColumnName = "Mics Symbol", Sortable = true },
+                                        new DataGridOptions() { Id = "EXPIRE_DATE", ColumnName = "Expire Date", Sortable = true },
+                                        new DataGridOptions() { Id = "EOA", ColumnName = "EOA", Sortable = true },
+                                    },
+                                    showPaging: true,
+                                    showExport: false,
+                                    itemsPerPage: 10,
+                                    autoWidth: true,
+                                    ajax: "GetImportedItems",
+                                    serverSide: false
+                                )
+                            }, 
+                            legend: "Imported Items"
+                            )
+                        },
+                        footerItems: new List<IHtmlString>() {
+                            Html.RenderButton(ButtonType.Button, ButtonColor.Primary, gridPart: 2, size: ButtonSize.md, label: "Insert into Database", ng_click: "ctl.askInsert()" )
+                        }
+                    )
+                    @Html.RenderModal("confirmInsert", "Confirm Insert", 
+                        new List<IHtmlString>() {
+                            Html.RenderHTML("<p>Are you sure you want to insert positions?</p>")
+                        }, 
+                        new List<IHtmlString>() {
+                            Html.RenderButton(ButtonType.Submit, ButtonColor.Danger, label: "Insert", ng_click: "ctl.insert()"),
+                            Html.RenderButton(ButtonType.Button, ButtonColor.Default, label: "Cancel", attributes: "data-dismiss='modal'")
+                        }
+                    )
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+@section pagespecific {
+    @foreach (string bundle in ViewBag.bundles)
+    {
+        @Scripts.Render(bundle);
+    }
+    @Html.RenderAngularApp()
+    @Html.RenderAngularController("view")
+    <script type="text/javascript" src="~/AngularControllers/MarketData/ControlPositionsController.js?version=@ViewBag.JSVersion"></script>
+
+}
